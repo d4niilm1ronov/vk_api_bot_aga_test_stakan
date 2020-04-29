@@ -7,9 +7,7 @@ class vkapi::token_base {
         string TOKEN;
 
     public:
-        token_base(string token) : TOKEN(token), objCURL(curl_easy_init()) {
-            curl_easy_setopt(objCURL, CURLOPT_WRITEFUNCTION, cts);
-        }
+        token_base(string);
 
 
 };
@@ -19,12 +17,10 @@ class vkapi::token_group : public vkapi::token_base {
         unsigned int ID;
 
     public:
-        token_group(string token, unsigned int id) : token_base(token), ID(id) {
-            
-        }
+        token_group(string, unsigned int);
 
 
-        void messages_send(const vkapi::message&) const;
+        nlohmann::json messages_send(const nlohmann::json&) const;
         vkapi::bots_long_poll groups_getLongPollServer() const;
 
 

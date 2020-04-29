@@ -1,5 +1,6 @@
-#include <string>
 #include <iostream>
+#include <fstream>
+#include <string>
 
 #include <curl/curl.h>
 #include <nlohmann/json.hpp>
@@ -7,20 +8,11 @@
 using namespace std;
 using json = nlohmann::json;
 
-#include "vk_api.hpp"
-
 #include "very_eassy_curl.hpp"
 
-#include "object/objects.hpp"
-
-#include "object/attachment.hpp"
-#include "object/photo.hpp"
-#include "object/message.hpp"
-#include "object/answer_botsLP.hpp"
-
-#include "long_poll.hpp"
-#include "token_vk.hpp"
-
+#include "vk_api.hpp"
+    #include "long_poll.hpp"
+    #include "token_vk.hpp"
 
 ////////////////////////////////////////////////////////////////////////
 
@@ -29,18 +21,34 @@ int main() {
     const unsigned int group_id = 193038255;
 
     vkapi::token_group test_token(my_token, group_id);
-    
+
     vkapi::bots_long_poll test_blp = test_token.groups_getLongPollServer();
-    vkapi::message* testMessage;
 
     while(true) {
-        vkapi::answer_botsLP ans = test_blp.request_lp();
+        json ans = test_blp.request_lp();
 
-        for (unsigned int i = 0; ans.count_updates > i; i++) {
-            testMessage = reinterpret_cast<vkapi::message*>(ans[i].obj);
-            test_token.messages_send(*testMessage);
+        cout << ans.dump(1) << endl;
+
+        if (ans.count("failed")) {
+            if (ans["failed"] == 1) {
+                test_blp.set_ts(ans["ts"]);
+                continue;
+            }
+            
+            else {
+                cout << "Failed Bots Long Poll API: " << ans["failed"] << endl;
+                break;
+            }
         }
+
+        for (unsigned int i = 0; ans["updates"].size() > i; i++) {
+            cout << test_token.messages_send(ans["updates"][i]["object"]["message"]).dump(1) << endl;
+        }
+
+        test_blp.set_ts(stoi(std::string(ans["ts"])));
     }
+
+
 
     return 0;
 }
