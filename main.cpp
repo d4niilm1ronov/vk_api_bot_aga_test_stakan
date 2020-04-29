@@ -22,12 +22,11 @@ int main() {
 
     vkapi::token_group test_token(my_token, group_id);
 
-    vkapi::bots_long_poll test_blp = test_token.groups_getLongPollServer();
+    vkapi::bots_long_poll test_blp = test_token.groups_getLongPollServer();    
 
-    while(true) {
+    // Пересылка сообщений (текстовые и медиа)
+    while (true) {
         json ans = test_blp.request_lp();
-
-        cout << ans.dump(1) << endl;
 
         if (ans.count("failed")) {
             if (ans["failed"] == 1) {

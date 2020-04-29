@@ -22,7 +22,9 @@ class vkapi::token_group : public vkapi::token_base {
 
         nlohmann::json messages_send(const nlohmann::json&) const;
         vkapi::bots_long_poll groups_getLongPollServer() const;
-
+        nlohmann::json groups_getLongPollSettings() const;
+        nlohmann::json groups_setLongPollSettings(const nlohmann::json&) const;
+        nlohmann::json groups_setLongPollSettings(const std::string&, const bool&) const;
 
 };
 
