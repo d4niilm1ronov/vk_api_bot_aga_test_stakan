@@ -242,9 +242,11 @@ nlohmann::json vkapi::token_group::messages_send(const nlohmann::json& mesg) con
     return nlohmann::json(json::parse(reqCURL (
         objCURL,
         "https://api.vk.com/method/messages.send?" +
-        request +
+        request         +
         "access_token=" +
-        TOKEN +
+        TOKEN           +
+        "&group_id="    +
+        to_string(ID)   +
         "&v=5.103"
     )));
 }
