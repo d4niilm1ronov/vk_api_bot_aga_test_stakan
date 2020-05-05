@@ -1,0 +1,51 @@
+{
+  "one_time":false,
+  "buttons":[
+    [
+      {
+        "action":{
+          "type":"text",
+          "payload":"{\"button\": \"1\"}",
+          "label":"Удалить"
+        },
+        "color":"negative"
+      },
+      {
+        "action":{
+          "type":"text",
+          "payload":"{\"button\": \"2\"}",
+          "label":"Изменить"
+        },
+        "color":"secondary"
+      },
+      {
+        "action":{
+          "type":"text",
+          "payload":"{\"button\": \"2\"}",
+          "label":"Добавить"
+        },
+        "color":"positive"
+      }
+    ],
+    [
+      {
+        "action":{
+          "type":"text",
+          "payload":"{\"button\": \"1\"}",
+          "label":"Выбрать+другое+расписание"
+        },
+        "color":"primary"
+      }
+    ],
+    [
+      {
+        "action":{
+          "type":"text",
+          "payload":"{\"button\": \"1\"}",
+          "label":"Назад"
+        },
+        "color":"secondary"
+      }
+    ]
+  ]
+}

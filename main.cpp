@@ -21,31 +21,47 @@ int main() {
     const unsigned int group_id = 193038255;
 
     vkapi::token_group test_token(my_token, group_id);
+    vkapi::bots_long_poll test_blp = test_token.groups_getLongPollServer();
 
-    vkapi::bots_long_poll test_blp = test_token.groups_getLongPollServer();    
+    fstream file("keyboard/menu_setting_schedule.json");
+    json keyboard_json;
+    json message_json;
 
-    // Пересылка сообщений (текстовые и медиа)
-    while (true) {
-        json ans = test_blp.request_lp();
+    file >> keyboard_json;
+    
+    message_json["random_id"] = rand();
+    message_json["peer_id"]   = 509452673;
+    message_json["text"]   = "Изменить+клавиатуру";
+    message_json["group_id"]  = 193038255;
+    message_json["keyboard"]  = keyboard_json.dump();
 
-        if (ans.count("failed")) {
-            if (ans["failed"] == 1) {
-                test_blp.set_ts(ans["ts"]);
-                continue;
-            }
+    cout << test_token.messages_send(message_json).dump(1) << endl; 
+
+
+    
+
+    // // Пересылка сообщений (текстовые и медиа)
+    // while (true) {
+    //     json ans = test_blp.request_lp();
+
+    //     if (ans.count("failed")) {
+    //         if (ans["failed"] == 1) {
+    //             test_blp.set_ts(ans["ts"]);
+    //             continue;
+    //         }
             
-            else {
-                cout << "Failed Bots Long Poll API: " << ans["failed"] << endl;
-                break;
-            }
-        }
+    //         else {
+    //             cout << "Failed Bots Long Poll API: " << ans["failed"] << endl;
+    //             break;
+    //         }
+    //     }
 
-        for (unsigned int i = 0; ans["updates"].size() > i; i++) {
-            cout << test_token.messages_send(ans["updates"][i]["object"]["message"]).dump(1) << endl;
-        }
+    //     for (unsigned int i = 0; ans["updates"].size() > i; i++) {
+    //         cout << test_token.messages_send(ans["updates"][i]["object"]["message"]).dump(1) << endl;
+    //     }
 
-        test_blp.set_ts(stoi(std::string(ans["ts"])));
-    }
+    //     test_blp.set_ts(stoi(std::string(ans["ts"])));
+    // }
 
 
 
