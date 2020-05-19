@@ -1,20 +1,20 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <map>
 
 #include <curl/curl.h>
 #include <nlohmann/json.hpp>
 
+
 using namespace std;
 using json = nlohmann::json;
 
-#include "very_eassy_curl.hpp"
+#include "Support/very_eassy_curl.hpp"
 
-#include "vk_api.hpp"
-    #include "long_poll.hpp"
-    #include "token_vk.hpp"
-
-////////////////////////////////////////////////////////////////////////
+#include "vkAPI/vk_api.hpp"
+#include "vkAPI/long_poll.hpp"
+#include "vkAPI/token_vk.hpp"
 
 int main() {
     const std::string my_token = "c7364e48cab5cbd2ae3268104fb95d7b8dfa830431a664f256bf9dae36b31685efef421173ac8f784076f";
@@ -23,20 +23,26 @@ int main() {
     vkapi::token_group test_token(my_token, group_id);
     vkapi::bots_long_poll test_blp = test_token.groups_getLongPollServer();
 
-    fstream file("keyboard/menu_setting_schedule.json");
-    json keyboard_json;
-    json message_json;
+    srand(time(NULL));
 
-    file >> keyboard_json;
-    
-    message_json["random_id"] = rand();
-    message_json["peer_id"]   = 509452673;
-    message_json["text"]   = "Изменить+клавиатуру";
-    message_json["group_id"]  = 193038255;
-    message_json["keyboard"]  = keyboard_json.dump();
 
-    cout << test_token.messages_send(message_json).dump(1) << endl; 
 
+    // fstream file("arr_keyboard.json");
+    // json arr_keyboard;
+    // json message_json;
+
+    // file >> arr_keyboard;
+    // message_json["random_id"] = rand();
+    // message_json["peer_id"]   = 509452673;
+    // message_json["text"]      = "Я+изменил+клавиатуру!";
+    // message_json["keyboard"]  = arr_keyboard[json_keyboards::menu_setting_schedule];
+
+    // cout << test_token.messages_send(message_json).dump(1) << endl; 
+
+
+
+    map<int, int> user_database;
+    user_database.insert({123, 123});
 
     
 

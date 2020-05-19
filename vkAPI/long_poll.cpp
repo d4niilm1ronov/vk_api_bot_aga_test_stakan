@@ -8,7 +8,7 @@
 using namespace std;
 using json = nlohmann::json;
 
-#include "very_eassy_curl.hpp"
+#include "../Support/very_eassy_curl.hpp"
 
 #include "vk_api.hpp"
     #include "long_poll.hpp"

@@ -8,7 +8,7 @@
 using namespace std;
 using json = nlohmann::json;
 
-#include "very_eassy_curl.hpp"
+#include "../Support/very_eassy_curl.hpp"
 
 #include "vk_api.hpp"
     #include "long_poll.hpp"
@@ -194,13 +194,11 @@ nlohmann::json vkapi::token_group::groups_setLongPollSettings(const nlohmann::js
 nlohmann::json vkapi::token_group::messages_send(const nlohmann::json& mesg) const {
     string request;
 
-    // Считывание peer_id, random_id
-    if (mesg.count("peer_id")) { request += "peer_id=" + to_string(mesg["peer_id"]) + "&"; }
-    
-    request += "random_id=" + to_string(rand()) + "&";
+    // Считывание peer_id, random_id, keyboard
+    if (mesg.count("peer_id"))   { request += "peer_id="   +  to_string(mesg["peer_id"])    + "&"; }
+    if (mesg.count("random_id")) { request += "random_id=" +  to_string(mesg["random_id"])  + "&"; }
 
-
-
+    if (mesg.count("keyboard"))  { request += "keyboard="  +  mesg["keyboard"].dump()       + "&"; }
 
     // Считывание text
     if (mesg.count("text")) {
