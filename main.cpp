@@ -10,7 +10,7 @@
 using namespace std;
 using json = nlohmann::json;
 
-#include "Support/very_eassy_curl.hpp"
+#include "vkAPI/support/very_eassy_curl.hpp"
 
 #include "vkAPI/vk_api.hpp"
 #include "vkAPI/long_poll.hpp"
@@ -41,8 +41,6 @@ int main() {
 
 
 
-    map<int, int> user_database;
-    user_database.insert({123, 123});
 
     
 
