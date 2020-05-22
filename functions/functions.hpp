@@ -38,6 +38,7 @@ namespace data_base {
         extern map<unsigned int, data_base::user::info> data;
 
         extern filesystem::path changelog_path;
+        extern fstream changelog;
 
         extern map<unsigned int, json> hash;
 

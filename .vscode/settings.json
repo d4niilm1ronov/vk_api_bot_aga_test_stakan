@@ -69,7 +69,6 @@
         "unordered_map": "cpp",
         "utility": "cpp",
         "valarray": "cpp",
-        "vector": "cpp",
-        "filesystem": "cpp"
+        "vector": "cpp"
     }
 }
