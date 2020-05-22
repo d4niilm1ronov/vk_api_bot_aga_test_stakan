@@ -5,11 +5,10 @@
 
 #include <curl/curl.h>
 #include <nlohmann/json.hpp>
+#include <iterator>
 
 using namespace std;
 using json = nlohmann::json;
-
-
 
 #include "vkAPI/support/very_eassy_curl.hpp"
 
@@ -19,28 +18,49 @@ using json = nlohmann::json;
 
 #include "functions/functions.hpp"
 
-// Стартовые определения для data_base::users
-    filesystem::path data_base::users::data_path      = "data/database_user.json";
+// Определения data_base::users
     map<unsigned int, data_base::user::info> data_base::users::data;
-
-    filesystem::path data_base::users::changelog_path = "data/changelog_user.json";
-    fstream data_base::users::changelog(data_base::users::changelog_path, ios::out | ios::in | ios::app);
+    filesystem::path data_base::users::data_path      = "data/users/database_user.json";
+    filesystem::path data_base::users::changelog_path = "data/users/changelog_user.json";
 
     map<unsigned int, json> data_base::users::hash;
 
+// enum
+
+
+
 int main() {
+    // Переменные для VK API
+    const string my_token = "c7364e48cab5cbd2ae3268104fb95d7b8dfa830431a664f256bf9dae36b31685efef421173ac8f784076f";
+    const unsigned int group_id = 193038255;
+    vkapi::token_group test_token(my_token, group_id);
+    vkapi::bots_long_poll test_blp = test_token.groups_getLongPollServer();
+
+    // Готовые сообщения
+    map<string, json> ready_mesg;
+
+    // Считывание из файлов Готовые сообщения
+    {
+        json   message_json;
+        string message_name;
+
+        for (auto& p : filesystem::directory_iterator("data/messages")) {
+            if (p.path().extension().string() == ".json") {
+                message_name = p.path().stem().string();
+                fstream(p) >> message_json;
+
+                ready_mesg.insert({message_name, message_json});
+            }
+        }
+    }
+
+    
+    // Остальное
+    json ans_longpoll_json;
     srand(time(NULL));
 
-    // Стартовые операции для vkAPI
-        const std::string my_token = "c7364e48cab5cbd2ae3268104fb95d7b8dfa830431a664f256bf9dae36b31685efef421173ac8f784076f";
-        const unsigned int group_id = 193038255;
-
-        vkapi::token_group test_token(my_token, group_id);
-        vkapi::bots_long_poll test_blp = test_token.groups_getLongPollServer();
-
-        json ans_longpoll_json; 
-
     // Стартовые обязательные операции для data_base::users
+    {
         // Создаем копии БД'шек
         file::dublicate(data_base::users::data_path, "data/dublicate");
         file::dublicate(data_base::users::changelog_path, "data/dublicate");
@@ -53,12 +73,16 @@ int main() {
             // Загружаем в ОЗУ изменения
             data_base::users::download_changelog();
 
-            // Правильная очистка changelog
-            data_base::users::changelog .close();
+            // Очистка changelog
             file::clear(data_base::users::changelog_path);
-            data_base::users::changelog
-                .open(data_base::users::changelog_path, ios::out | ios::in | ios::app);
+            data_base::users::upload_data();
         }
+
+        // Определяем БД кэша пользователей
+        for (auto iter : data_base::users::data) {
+            data_base::users::hash.insert({iter.first, json()});
+        }
+    }
 
     // Самый главный цикл 💪😎
         while(true) {
@@ -98,10 +122,14 @@ int main() {
             for (unsigned int i = 0; ans_longpoll_json["updates"].size() > i; i++) {
                 const json message_json = move(ans_longpoll_json["updates"][i]["object"]["message"]);
 
+                // Добавление нового пользователя 
                 if (!data_base::user::check(message_json["peer_id"])) {
+                    test_token.messages_send(message_json["peer_id"], ready_mesg["welcome"]);
                     data_base::user::add(message_json["peer_id"]);
+                    continue;
                 }
 
+                // Стоп-слово
                 if (message_json["text"] == std::string("стоп")) {
                     stop_flag = true;
                 }
@@ -132,6 +160,8 @@ int main() {
             // 
             // [Операции] Рассылка расписания
         
+
+
         // Правильное выключение
         data_base::users::upload_data();
     

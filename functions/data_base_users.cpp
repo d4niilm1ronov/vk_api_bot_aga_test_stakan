@@ -38,7 +38,7 @@ void data_base::users::download_data() {
 
     ifs.close();
 
-    cout << "[data_base][users][download_data]"
+    cout << "[data_base][users][download_data] "
             "БД пользователей загружена в ОЗУ. Пользователей в ОЗУ: "
          << data_base::users::data.size() << endl;
 }

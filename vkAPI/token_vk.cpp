@@ -194,18 +194,27 @@ nlohmann::json vkapi::token_group::groups_setLongPollSettings(const nlohmann::js
 nlohmann::json vkapi::token_group::messages_send(const nlohmann::json& mesg) const {
     string request;
 
-    // Считывание peer_id, random_id, keyboard
+    // Считывание peer_id,
     if (mesg.count("peer_id"))   { request += "peer_id="   +  to_string(mesg["peer_id"])    + "&"; }
+
+    // Считывание random_id
     if (mesg.count("random_id")) { request += "random_id=" +  to_string(mesg["random_id"])  + "&"; }
+    else                         { request += "random_id=" +  to_string(rand())            + "&"; }
 
     if (mesg.count("keyboard"))  { request += "keyboard="  +  mesg["keyboard"].dump()       + "&"; }
 
-    // Считывание text
+    // Считывание текста сообщения
     if (mesg.count("text")) {
         std::string text = mesg["text"];
 
         // Адаптируем пробелы
-        for (auto iter = text.begin(); iter != text.end(); iter++) { if (*iter == ' ') { *iter = '+'; } }
+        replace(text.begin(), text.end(), ' ', '+');
+
+        // Адаптируем переносы строк
+        while ((text.find('\n')) != text.npos) {
+            text.replace(text.find('\n'), 1, "%0A");
+        }
+
         // Запись в запрос
         request = request + "message=" + text + "&";
     }
@@ -234,7 +243,7 @@ nlohmann::json vkapi::token_group::messages_send(const nlohmann::json& mesg) con
         }
     }
 
-    std::cout << "[VK API] messages.send" << std::endl;
+    std::cout << "[VK API] Отправлено сообщение по адресу [id" << (unsigned int)mesg["peer_id"] << "]" << std::endl;
 
     // Отправка сообщения (запроса)
     return nlohmann::json(json::parse(reqCURL (
@@ -247,6 +256,12 @@ nlohmann::json vkapi::token_group::messages_send(const nlohmann::json& mesg) con
         to_string(ID)   +
         "&v=5.103"
     )));
+}
+
+nlohmann::json vkapi::token_group::messages_send(const unsigned int& id, nlohmann::json mesg) const {
+    mesg["peer_id"] = id;
+    
+    return messages_send(mesg);
 }
 
 ////////////////////////////////////////////////////////////////////////
