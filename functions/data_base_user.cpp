@@ -14,15 +14,17 @@ using json = nlohmann::json;
 ////////////////////////////////////////////////////////////////////////
 
 void data_base::user::add (const unsigned int& id) {
+    fstream changelog(data_base::users::changelog_path, ios::out | ios::in | ios::app);
+
     // Добавление в Оперативную
     data_base::users::data.insert( { id , data_base::user::info() } );
     
     // Добавление в Постоянную (changelog)
     if (!file::empty(data_base::users::changelog_path)) {
-        data_base::users::changelog << endl;
+        changelog << endl;
     }
 
-    data_base::users::changelog <<
+    changelog <<
         "{"
             "\"id\":" << to_string(id) << ","
             "\"user_info\":{"
@@ -45,11 +47,11 @@ bool data_base::user::check (const unsigned int& id) {
 //----------------------------------------------------------------------
 
 void data_base::user::push_changelog (const unsigned int& id) {
-    if (!file::empty(data_base::users::changelog_path)) {
-        data_base::users::changelog << endl;
-    }
+    fstream changelog(data_base::users::changelog_path, ios::out | ios::in | ios::app);
 
-    data_base::users::changelog <<
+    if (!file::empty(data_base::users::changelog_path)) { changelog << endl; }
+
+    changelog <<
         "{"
             "\"id\":" << to_string(id) << ","
             "\"user_info\":{"
