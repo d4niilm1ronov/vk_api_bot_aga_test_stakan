@@ -26,20 +26,12 @@ using json = nlohmann::json;
 ////////////////////////////    [ menu ]    ////////////////////////////
 
 void stage::menu_guest(const json& message) {
-    string result = "menu_guest";
     unsigned int peer_id = message["peer_id"];
+    string result = data_base::users::data[peer_id].stage;
 
     if (message.count("payload")) {
         if (message["payload"] == "1") {
             result = "setting_timetable_institute";
-        }
-
-        if (message["payload"] == "2") {
-            result = "search_teacher_input";
-        }
-
-        if (message["payload"] == "3") {
-            result = "search_room_category";
         }
     }
 
@@ -47,15 +39,7 @@ void stage::menu_guest(const json& message) {
         result = "setting_timetable_institute";
     }
 
-    if (message["text"] == "2") {
-        result = "search_teacher_input";
-    }
-
-    if (message["text"] == "3") {
-        result = "search_room_category";
-    }
-
-    if (result != "menu_guest") {
+    if (result != data_base::users::data[peer_id].stage) {
         data_base::users::data[peer_id].stage = result;
         data_base::user::push_changelog(peer_id);
         test_token.messages_send(peer_id, stage::message[result]);
@@ -71,36 +55,37 @@ void stage::menu_guest(const json& message) {
 //----------------------------------------------------------------------
 
 void stage::menu_user(const json& message) {
-    string result = "menu_user";
     unsigned int peer_id = message["peer_id"];
+    string result = data_base::users::data[peer_id].stage;
 
     if (message.count("payload")) {
         if (message["payload"] == "1") {
-            result = "search_teacher_input";
+            result = "setting_timetable_institute";
         }
 
         if (message["payload"] == "2") {
-            result = "search_room_category";
-        }
-
-        if (message["payload"] == "3") {
-            result = "setting";
+            result = "menu_guest";
         }
     }
 
     if (message["text"] == "1") {
-        result = "search_teacher_input";
+        result = "setting_timetable_institute";
     }
 
     if (message["text"] == "2") {
-        result = "search_room_category";
+        result = "menu_guest";
     }
 
-    if (message["text"] == "3") {
-        result = "setting";
-    }
+    if (result != data_base::users::data[peer_id].stage) {
+        if (result == "del") {
+            json mesg; mesg["text"] = "Вы отписаны от расписания 😔";
+            test_token.messages_send(peer_id, mesg);
+            file::clear_folder(string("data/users/tt") + to_string(peer_id));
+            
+            data_base::users::data[peer_id].send_id = 0;
+            data_base::users::data[peer_id].level = 0;
+        }
 
-    if (result != "menu_user") {
         data_base::users::data[peer_id].stage = result;
         data_base::user::push_changelog(peer_id);
         test_token.messages_send(peer_id, stage::message[result]);
