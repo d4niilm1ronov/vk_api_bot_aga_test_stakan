@@ -1,13 +1,24 @@
 #include <iostream>
 #include <fstream>
-#include <map>
-#include <nlohmann/json.hpp>
 #include <filesystem>
+#include <string>
+#include <map>
+#include <iterator>
 #include <ctime>
+#include <vector>
 #include <unistd.h>
+
+#include <curl/curl.h>
+#include <nlohmann/json.hpp>
 
 using namespace std;
 using json = nlohmann::json;
+
+#include "../vkAPI/support/very_eassy_curl.hpp"
+
+#include "../vkAPI/vk_api.hpp"
+#include "../vkAPI/long_poll.hpp"
+#include "../vkAPI/token_vk.hpp"
 
 #include "functions.hpp"
 
@@ -24,15 +35,12 @@ void data_base::user::add (const unsigned int& id) {
         changelog << endl;
     }
 
-    changelog <<
-        "{"
-            "\"id\":" << to_string(id) << ","
-            "\"user_info\":{"
-                "\"level\":"     "0,"
-                "\"send_id\":"   "0,"
-                "\"stage\":"     "100000"
-            "}"
-        "}";
+    json temp_json;
+    temp_json["id"] = id;
+    temp_json["user_info"] = json(data_base::users::data[id]);
+
+
+    changelog << temp_json.dump();
 
     cout << "[data_base][user][add] Добавлен новый пользователь (id" << id << ") "
             "в файл " << data_base::users::changelog_path.filename() << endl;
@@ -51,18 +59,15 @@ void data_base::user::push_changelog (const unsigned int& id) {
 
     if (!file::empty(data_base::users::changelog_path)) { changelog << endl; }
 
-    changelog <<
-        "{"
-            "\"id\":" << to_string(id) << ","
-            "\"user_info\":{"
-                "\"level\":"     << to_string(data_base::users::data[id].level)   << ","
-                "\"send_id\":"   << to_string(data_base::users::data[id].send_id) << ","
-                "\"stage\":"     << to_string(data_base::users::data[id].stage)   <<
-            "}"
-        "}";
+    json temp_json;
+    temp_json["id"] = id;
+    temp_json["user_info"] = json(data_base::users::data[id]);
+
+
+    changelog << temp_json.dump();
 
     cout << "[data_base][user][push_changelog] Продублированны изменения пользователя id" << id <<
-            "в файл " << data_base::users::changelog_path.filename() << endl;
+            " в файл " << data_base::users::changelog_path.filename() << endl;
 }
 
 ////////////////////////////////////////////////////////////////////////

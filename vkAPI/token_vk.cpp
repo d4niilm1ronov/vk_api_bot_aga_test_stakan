@@ -207,9 +207,6 @@ nlohmann::json vkapi::token_group::messages_send(const nlohmann::json& mesg) con
     if (mesg.count("text")) {
         std::string text = mesg["text"];
 
-        // Адаптируем пробелы
-        replace(text.begin(), text.end(), ' ', '+');
-
         // Адаптируем переносы строк
         while ((text.find('\n')) != text.npos) {
             text.replace(text.find('\n'), 1, "%0A");
@@ -242,6 +239,9 @@ nlohmann::json vkapi::token_group::messages_send(const nlohmann::json& mesg) con
             request += "&";
         }
     }
+
+    // Адаптируем пробелы
+    replace(request.begin(), request.end(), ' ', '+');
 
     std::cout << "[VK API] Отправлено сообщение по адресу [id" << (unsigned int)mesg["peer_id"] << "]" << std::endl;
 

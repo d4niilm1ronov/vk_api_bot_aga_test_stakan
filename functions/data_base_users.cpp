@@ -1,13 +1,24 @@
 #include <iostream>
 #include <fstream>
-#include <map>
-#include <nlohmann/json.hpp>
 #include <filesystem>
+#include <string>
+#include <map>
+#include <iterator>
 #include <ctime>
+#include <vector>
 #include <unistd.h>
+
+#include <curl/curl.h>
+#include <nlohmann/json.hpp>
 
 using namespace std;
 using json = nlohmann::json;
+
+#include "../vkAPI/support/very_eassy_curl.hpp"
+
+#include "../vkAPI/vk_api.hpp"
+#include "../vkAPI/long_poll.hpp"
+#include "../vkAPI/token_vk.hpp"
 
 #include "functions.hpp"
 

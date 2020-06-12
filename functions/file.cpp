@@ -1,13 +1,23 @@
 #include <iostream>
 #include <fstream>
-#include <map>
-#include <nlohmann/json.hpp>
 #include <filesystem>
+#include <string>
+#include <map>
+#include <iterator>
 #include <ctime>
-#include <unistd.h>
+#include <vector>
+
+#include <curl/curl.h>
+#include <nlohmann/json.hpp>
 
 using namespace std;
 using json = nlohmann::json;
+
+#include "../vkAPI/support/very_eassy_curl.hpp"
+
+#include "../vkAPI/vk_api.hpp"
+#include "../vkAPI/long_poll.hpp"
+#include "../vkAPI/token_vk.hpp"
 
 #include "functions.hpp"
 
@@ -49,6 +59,14 @@ void file::dublicate(const filesystem::path& from_file_path, filesystem::path to
     filesystem::copy(from_file_path, to_dir_path);
 
     cout << "[file][dublicate] Создан дубликат файла " << from_file_path.filename() << endl;
+}
+
+////////////////////////////////////////////////////////////////////////
+
+void file::clear_folder(const filesystem::path& folder_path) {
+    for (auto& ptr_file : filesystem::directory_iterator(folder_path)) {
+        remove(ptr_file.path().string().c_str());
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////
