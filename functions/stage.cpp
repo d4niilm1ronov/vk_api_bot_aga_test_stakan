@@ -358,7 +358,6 @@ void stage::setting_timetable_group(const json& message) {
             } else {
                 data_base::users::data[peer_id].stage = what_menu(peer_id);
             }
-
         }
 
         data_base::user::push_changelog(peer_id);
@@ -388,8 +387,8 @@ void stage::setting_timetable_lab_group(const json& message) {
 
         if (cancel_label == message["payload"]) { result = cancel_label; }
 
-        if ((int(message["payload"]) <= size) & (int(message["payload"]) >= 1)) {
-            result = message["payload"];
+        if ((stoi(to_string(message["payload"])) <= size) & (stoi(to_string(message["payload"])) >= 1)) {
+            result = to_string(message["payload"]);
         }
     }
 
