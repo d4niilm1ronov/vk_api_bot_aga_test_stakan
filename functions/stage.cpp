@@ -383,12 +383,14 @@ void stage::setting_timetable_lab_group(const json& message) {
 
     // Если есть payload
     if (message.count("payload")) {
-        unsigned int payload = stoi(static_cast<string>(message["payload"]));
-
-        if (cancel_label == message["payload"]) { result = cancel_label; }
-
-        if ((stoi(to_string(message["payload"])) <= size) & (stoi(to_string(message["payload"])) >= 1)) {
-            result = to_string(message["payload"]);
+        if (static_cast<string>(message["payload"]) == cancel_label) {
+            result = cancel_label;
+        } else {
+            for (size_t i = 1; i <= size; i++) {
+                if (static_cast<string>(message["payload"]) == to_string(i)) {
+                    result = message["payload"];
+                }
+            }
         }
     }
 
