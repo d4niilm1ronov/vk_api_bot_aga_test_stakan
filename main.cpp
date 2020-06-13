@@ -31,8 +31,6 @@ int main() {
 
     general::upload();
 
-    cout << stage::message.size() << endl;
-
     // Самый главный цикл 💪😎
     while(true) {
         bool stop_flag = false;
@@ -113,12 +111,10 @@ int main() {
         }
         
         auto temp_date = date::get_current_date();
-        cout << temp_date.tm_mday << "." <<  temp_date.tm_mon + 1 << "." << temp_date.tm_year + 1900 << " " << temp_date.tm_hour << ":" << temp_date.tm_min << ":" << temp_date.tm_sec  << " (" << temp_date.tm_yday  << ")" << endl;
 
         // Рассылка уведомлений о перерыве 🛎
         if (date::time_to_break()) {
             for (auto peer_id : notification) {
-                cout << 2222 << endl;
                 test_token.messages_send(peer_id, ready_mesg["break"]);
             }
 
@@ -127,30 +123,25 @@ int main() {
 
         // Рассылка уведомлений о следующем занятии ⏰
         if (date::current_lesson != date::get_stage_tt()) {
-            cout << "ПАРА" << endl;
             auto stage_tt = date::get_stage_tt();
-            int tm_yday = date::get_current_date().tm_yday + 1;
+            int tm_yday = date::get_current_date().tm_yday;
             
             if (date::get_stage_tt() != 0) {
-
-                cout << "ПАРА2" << endl;
-
                 for (auto user : data_base::users::data) {
+                    // Проверка на воскресенье
+                    if (date::get_current_date().tm_wday == 0) { break; }
+
+                    // 
                     if (user.second.send_id == 0) { continue; }
                     string path_tt = string("data/users/tt") + to_string(user.first) + "/" + date::arr_wday[date::get_current_date().tm_wday];
-                    cout << path_tt << endl;
                     json json_tt; ifstream(path_tt) >> json_tt;
                     
                     for (int i = 0; i < json_tt.size(); i++) {
                         // Если занятие подходит по времени
                         if (stage_tt == json_tt[i]["time"]) {
-                            cout << "find" << endl;
-
-                            cout << int(json_tt[i]["dates"][0]) << " vs " << tm_yday << endl;
 
                             // Нахождение (почему-то) не отправленных пар
                             if (json_tt[i]["dates"][0] < tm_yday) {
-                                cout << "kill" << endl;
                                 for (int i = 0; json_tt[i]["dates"].size() > i; i++) {
                                     if (json_tt[i]["dates"][0] >= tm_yday) { break; }
                                     json_tt[i]["dates"].erase(0);
@@ -168,7 +159,6 @@ int main() {
 
                             // Если занятие подходит еще и по дате
                             if (json_tt[i]["dates"][0] == tm_yday) {
-                                cout << "FIND!" << endl;
                                 json lesson = json_tt[i];
                                 json mesg;
                                 string text;
@@ -191,7 +181,7 @@ int main() {
                                                    { text = "Восьмое занятие (21:20 - 22:50)"; }
 
                                 mesg["text"] = text; text.clear();
-                                cout << test_token.messages_send(user.second.send_id, mesg) << endl;
+                                test_token.messages_send(user.second.send_id, mesg);
 
                                 // Отправка информации о занятии
                                 text = string(lesson["name"]);
@@ -223,7 +213,7 @@ int main() {
                                 }
                                 
                                 mesg["text"] = text;
-                                cout << test_token.messages_send(user.second.send_id, mesg) << endl;
+                                test_token.messages_send(user.second.send_id, mesg);
 
                                 // Запоминаем напомнить об перерыве
                                 notification.push_back(user.second.send_id);

@@ -28,8 +28,8 @@ unsigned int date::current_lesson = 0;
 unsigned int date::difference = 10461600;
 time_t date::current_time = static_cast<unsigned int>(time(NULL)) - date::difference;
 
-string date::arr_wday[6] = { "monday.json",  "tuesday.json", "wednesday.json",
-                             "thursday.json", "friday.json", "saturday.json"   };
+string date::arr_wday[7] = { "", "monday.json",  "tuesday.json", "wednesday.json",
+                             "thursday.json", "friday.json", "saturday.json"  };
 
 tm date::to_tm(const string& str_time) {
     int year = (localtime(&current_time) -> tm_year) + 1900;
