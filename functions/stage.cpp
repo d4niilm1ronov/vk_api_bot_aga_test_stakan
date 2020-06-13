@@ -320,7 +320,7 @@ void stage::setting_timetable_group(const json& message) {
 
             // Записываем занятия из готового расписания в расписание пользователя
             for (int i = 0; json_timetables["lessons"].size() > i; i++) {
-                ofstream(string("data/users/tt") + to_string(peer_id) + "/" + date::arr_wday[i])
+                ofstream(string("data/users/tt") + to_string(peer_id) + "/" + date::arr_wday[i + 1])
                     << json_timetables["lessons"][i];
             }
 
