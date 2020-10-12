@@ -101,11 +101,6 @@ int main() {
                 continue;
             }
 
-            // Стоп-слово
-            if (message["text"] == std::string("стоп")) {
-                stop_flag = true; break;
-            }
-
             // Обработка сообщения
             stage::function[data_base::users::data[peer_id].stage](message);
         }
@@ -227,8 +222,6 @@ int main() {
 
             date::current_lesson = stage_tt;
         }
-
-        if (stop_flag) { break; }
 
         // Устанавливаем свежиий идентификатор сообытий 🛠
         test_blp.set_ts(stoi(std::string(ans_longpoll_json["ts"])));
