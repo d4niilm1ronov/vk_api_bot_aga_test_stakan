@@ -33,8 +33,7 @@ int main() {
 
     // Самый главный цикл 💪😎
     while(true) {
-        bool stop_flag = false;
-        
+
         // Собираем события от Bots Long Poll API 📩
         ans_longpoll_json = test_blp.request_lp();
 
