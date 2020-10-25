@@ -2,8 +2,8 @@
 //
 // vkapi
 // | ---- token_base
-//        | ---- constructor(string)
-//
+// |      | ---- constructor(string)
+// |
 // | ---- token_group
 //        | ---- constructor(string, uint)
 //        | ---- groups_getLongPollServer()
@@ -306,5 +306,3 @@ nlohmann::json vkapi::token_group::messages_send(const unsigned int& peer_id, nl
     
     return messages_send(mesg);
 }
-
-////////////////////////////////////////////////////////////////////////
