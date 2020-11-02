@@ -11,8 +11,8 @@ using json = nlohmann::json;
 #include "support/very_eassy_curl.hpp"
 
 #include "vk_api.hpp"
-#include "long_poll.hpp"
-#include "token_vk.hpp"
+    #include "long_poll.hpp"
+    #include "token_vk.hpp"
 
 ////////////////////////////////////////////////////////////////////////
 

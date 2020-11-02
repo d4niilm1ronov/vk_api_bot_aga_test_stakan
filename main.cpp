@@ -13,23 +13,195 @@
 using namespace std;
 using json = nlohmann::json;
 
-#include "vkAPI/support/very_eassy_curl.hpp"
+// Библиотека для работы с SQLite 3 & C++
+#include "sqlite_modern_cpp/hdr/sqlite_modern_cpp.h"
 
+// VK API
+#include "vkAPI/support/very_eassy_curl.hpp"
 #include "vkAPI/vk_api.hpp"
 #include "vkAPI/long_poll.hpp"
 #include "vkAPI/token_vk.hpp"
 
-#include "functions/functions.hpp"
+#include "data_base.hpp"
+
+#include "date.hpp"
+
+#include "main.hpp"
+
+#include "stage.hpp"
+
+
+// токен и id сообщества
+vkapi::token_group stankin_bot(string("c7364e48cab5cbd2ae3268104fb95d7b8dfa830431a664f256bf9dae36b31685efef421173ac8f784076f"), 193038255);
 
 
 
 ////////////////////////////////////////////////////////////////////////
 
-int main() {
+bool its_text_message(const json& message) {
+    if (!message.count("text")) { return false; }
+    if (!static_cast<string>(message["text"]).size()) { return false; }
+
+    if (message.count("attachments")) {
+        if (message["attachments"].size()) {
+            return false;
+        }
+    }
+
+    if (message.count("fwd_messages")) {
+        if (message["fwd_messages"].size()) {
+            return false;
+        }
+    }
+    
+    if (message.count("reply_message")) {
+        return false;
+    }
+
+    return true;
+}
+
+////////////////////////////////////////////////////////////////////////
+
+string kill_rus_e(string str) {
+    for (unsigned int i = 0; i < str.size(); i++) {
+        if ((str[i] == -48) | (str[i] == -47)) {
+
+            if (str[i] == -48) {
+                i++;
+
+                if (str[i] == -127) {
+                    str[i] = -107;
+                }
+            }
+            
+            else {
+                i++;
+
+                if (str[i] == -111) {
+                    str[i] = -75;
+                    str[i - 1] = -48;
+                }
+            }
+
+        }
+    }
+
+    return str;
+}
+
+////////////////////////////////////////////////////////////////////////
+
+string to_upper_rus(string str) {
+    for (unsigned int i = 0; i < str.size(); i++) {
+        if ((str[i] == -48) | (str[i] == -47)) {
+
+            if (str[i] == -48) {
+                i++;
+
+                if ((str[i] >= -80) & (str[i] <= -65)) {
+                    str[i] = str[i] - 32;
+                }
+            }
+            
+            else {
+                i++;
+
+                if ((str[i] >= -128) & (str[i] <= -113)) {
+                    str[i] = str[i] + 32;
+                    i--;
+                    str[i] = -48;
+                    i++;
+                }
+            }
+
+        }
+    }
+
+    return str;
+}
+
+////////////////////////////////////////////////////////////////////////
+
+bool its_rus_name(string surname) {
+    string caps_surname = to_upper_rus(kill_rus_e(surname));
+
+    for (unsigned int i = 0; i < caps_surname.size(); i++) {
+        if (caps_surname[i] == '-') { continue; }
+        if (caps_surname[i] != -48) { return false; } else { i++; }
+        if (!((caps_surname[i] >= -112 ) & (caps_surname[i] <= -81))) { return false; }
+    }
+
+    return true;
+}
+
+////////////////////////////////////////////////////////////////////////
+
+int main(int argc, char *argv[]) {
+
+    // Инициализация вк-токена и базы данных
+    {
+        string str_ans;
+        int int_ans;
+
+        // АРГУМЕНТ 1: название файла, в котором хранится токен бота,
+        // к сообществу ВКонтакте которому он принадлжеит
+        if (argc > 1) { ifstream(argv[1]) >> str_ans; }
+        else { cout << "Введите токен сообщества вашего бота: "; cin >> str_ans; }
+
+        // АРГУМЕНТ 2: название файла, в котором хранится ID сообщества ВКонтакте,
+        // к которому принадлежит бот
+        if (argc > 2) { ifstream(argv[2]) >> int_ans; }
+        else { cout << "Введите ID сообщества вашего бота: "; cin >> int_ans; }
+
+        // [Изменить]
+        // создание нового токена
+        // старый_токен = новый_токен
+
+        // АРГУМЕНТ 3: название файла БД (SQLite 3)
+        if (argc > 3) { ifstream(argv[3]) >> str_ans; }
+        else { cout << "Введите название файла базы данных (SQLite 3): "; cin >> str_ans; }
+
+        // Установка базы данных
+        sqlite::database test_db(argv[3]); data_base::db = test_db;
+    }
+
+
+    // Заполнение stage::message
+    {
+        json   message_json;
+        string message_name;
+
+        for (auto& p : std::__fs::filesystem::directory_iterator("data/stages")) {
+            if (p.path().extension().string() == ".json") {
+                message_name = p.path().stem().string();
+                std::ifstream(p.path()) >> message_json;
+
+                stage::message.insert({message_name, message_json});
+            }
+        }
+    }
+
+    // Заполнение stage::function
+    {
+        stage::function.insert({"menu_guest", stage::menu_guest});
+        stage::function.insert({"menu_user", stage::menu_user});
+
+        stage::function.insert({"setting_timetable_institute", stage::setting_timetable_institute});
+        stage::function.insert({"setting_timetable_year", stage::setting_timetable_year});
+        stage::function.insert({"setting_timetable_group", stage::setting_timetable_group});
+        stage::function.insert({"setting_timetable_lab_group", stage::setting_timetable_lab_group});
+
+    }
+
+    
+
+
     // Остальное
     json ans_longpoll_json;
 
-    general::upload();
+    auto test_blp = stankin_bot.groups_getLongPollServer();
+    vkapi::token_group& test_token = stankin_bot;
 
     // Самый главный цикл 💪😎
     while(true) {
@@ -46,7 +218,7 @@ int main() {
             } else
             
             // Ошибка связанная с key (2)
-            if (ans_longpoll_json["failed"] == 2 ) {
+            if (ans_longpoll_json["failed"] == 2) {
                 test_blp = test_token.groups_getLongPollServer();
                 continue;
             } else
@@ -63,173 +235,83 @@ int main() {
                 break;
             }
         }
-
+        /*
         // Обработка новых сообщений 🔄
         for (unsigned int i = 0; ans_longpoll_json["updates"].size() > i; i++) {
             const json message = move(ans_longpoll_json["updates"][i]["object"]["message"]);
-            unsigned int peer_id = message["peer_id"];
+            uint peer_id = message["peer_id"];
+            json result_mesg;
+
+            // Заглушка от сообщества 
+            if (peer_id >= 2000000000) { continue; } else
 
             // Добавление нового пользователя 
-            if (!data_base::user::check(peer_id)) {
-                data_base::user::add(peer_id);
-                data_base::users::hash.insert({peer_id, json()});
-                test_token.messages_send(peer_id, ready_mesg["welcome"]);
-                test_token.messages_send(peer_id, stage::message["menu_guest"]);
-                continue;
-            }
-
-            // Вывод меню (от Перезапуска бота)
-            if (data_base::users::data[peer_id].stage == "error") {
-                data_base::users::data[peer_id].stage = what_menu(peer_id);
-
-                json answer_message;
-                answer_message["text"] = "Был перезапуск бота, Вас вернули в безопасное место - Меню 😌";
-                test_token.messages_send(peer_id, answer_message);
-
-                test_token.messages_send(peer_id, stage::message[data_base::users::data[peer_id].stage]);
-
-                data_base::user::push_changelog(peer_id);
-                continue;
-            }
+            if (!data_base::check_user_id(peer_id)) {
+                data_base::add_user(peer_id);
+                result_mesg = stage::message["menu_guest"];
+            } else
 
             // Проверка на Текстовое сообщение
             if (!its_text_message(message)) {
-                json answer_message;
-                answer_message["text"] = "Я понимаю только символы и нажатия на кнопки 🥴";
-                test_token.messages_send(peer_id, answer_message); 
-                continue;
+                result_mesg["text"] = "Я понимаю только номера пунктов меню и нажатия на кнопки 🤷‍♀️"; 
+            } else {
+                // Обработка сообщения
+                result_mesg = stage::function[data_base::get_user_stage(peer_id)](message);
             }
 
-            // Обработка сообщения
-            stage::function[data_base::users::data[peer_id].stage](message);
-        }
-        
-        auto temp_date = date::get_current_date();
-
-        // Рассылка уведомлений о перерыве 🛎
-        if (date::time_to_break()) {
-            for (auto peer_id : notification) {
-                test_token.messages_send(peer_id, ready_mesg["break"]);
-            }
-
-            notification.clear();
-        }
-
-        // Рассылка уведомлений о следующем занятии ⏰
-        if (date::current_lesson != date::get_stage_tt()) {
-            auto stage_tt = date::get_stage_tt();
-            int tm_yday = date::get_current_date().tm_yday;
             
-            if (date::get_stage_tt() != 0) {
-                for (auto user : data_base::users::data) {
-                    // Проверка на воскресенье
-                    if (date::get_current_date().tm_wday == 0) { break; }
 
-                    // 
-                    if (user.second.send_id == 0) { continue; }
-                    string path_tt = string("data/users/tt") + to_string(user.first) + "/" + date::arr_wday[date::get_current_date().tm_wday];
-                    json json_tt; ifstream(path_tt) >> json_tt;
-                    
-                    for (int i = 0; i < json_tt.size(); i++) {
-                        // Если занятие подходит по времени
-                        if (stage_tt == json_tt[i]["time"]) {
+            // Запись random_id    
+            {
+                uint random_id;
 
-                            // Нахождение (почему-то) не отправленных пар
-                            if (json_tt[i]["dates"][0] < tm_yday) {
-                                for (int i = 0; json_tt[i]["dates"].size() > i; i++) {
-                                    if (json_tt[i]["dates"][0] >= tm_yday) { break; }
-                                    json_tt[i]["dates"].erase(0);
-                                }
+                data_base::db << "SELECT random_id FROM user WHERE id = ? ;"
+                << peer_id
+                >> random_id;
 
-                                if (json_tt[i]["dates"].empty()) {
-                                    json_tt.erase(i);
-                                    ofstream(path_tt, ios::trunc) << json_tt;
-                                    continue;
-                                }
+                random_id++;
 
-                                ofstream(path_tt, ios::trunc) << json_tt;
-                            }
+                data_base::db << "UPDATE user SET random_id = ? WHERE id = ? ;"
+                << random_id
+                << peer_id;
+
+                result_mesg["random_id"] = random_id;
+            }
+                
+            cout << result_mesg.dump(1) << endl;
+            cout << stankin_bot.messages_send(peer_id, result_mesg) << endl;
+            
+        }
+        */
 
 
-                            // Если занятие подходит еще и по дате
-                            if (json_tt[i]["dates"][0] == tm_yday) {
-                                json lesson = json_tt[i];
-                                json mesg;
-                                string text;
+        // Если началось время следующей пары (Рассылка уведомлений о занятий)
 
-                                // Удаляем из расписания пользователя это занятие
-                                json_tt[i]["dates"].erase(0);
-                                // Если дат больше нет по этому занятию - удаляем занятие
-                                if (json_tt[i]["dates"].empty()) { json_tt.erase(i); }
-                                // Сохраняем такое расписание
-                                ofstream(path_tt, ios::trunc) << json_tt;
+        if (time_university::last_number_lesson != time_university::get_current_number_lesson()) {
+            cout << 's' << endl;
+            time_university::last_number_lesson = time_university::get_current_number_lesson();
 
-                                // Отправка номера занятия
-                                if (stage_tt == 1) { text = "Первое занятие (08:30 - 10:10)"; } else
-                                if (stage_tt == 2) { text = "Второе занятие (10:20 - 12:00)"; } else
-                                if (stage_tt == 3) { text = "Третье занятие (12:20 - 14:00)"; } else
-                                if (stage_tt == 4) { text = "Четвертое занятие (14:10 - 15:50)"; } else
-                                if (stage_tt == 5) { text = "Пятое занятие (16:00 - 17:40)"; } else
-                                if (stage_tt == 6) { text = "Шестое занятие (18:00 - 19:30)"; } else
-                                if (stage_tt == 7) { text = "Седьмое занятие (19:40 - 21:10)"; } else
-                                                   { text = "Восьмое занятие (21:20 - 22:50)"; }
+            // Проверка на то, что это пара, а не конец учебного дня
+            if (time_university::last_number_lesson) {
+                auto vec_lesson = data_base::get_cur_less(
+                    time_university::last_number_lesson,
+                    time_university::get_current_date()
+                );
 
-                                mesg["text"] = text; text.clear();
-                                test_token.messages_send(user.second.send_id, mesg);
+                cout << time_university::last_number_lesson << endl << time_university::get_current_date() << endl;
 
-                                // Отправка информации о занятии
-                                text = string(lesson["name"]);
+                cout << vec_lesson.size() << endl;
 
-                               
-                                if (lesson.count("room")) {
-                                     text += "\n📌 Ауд. ";
-                                    if (lesson["room"].is_string()) {
-                                        text += string(lesson["room"]);
-                                    } else {
-                                        // 📌 ДОБАВИТЬ ДОБАВИТЬ ДОБАВИТЬ 📌
-                                    }
-                                }
-
-                                if (lesson["type_lesson"] == 1) {
-                                    text = text + "\n📌 Лекция";
-                                } else
-                                if (lesson["type_lesson"] == 2) {
-                                    text = text + "\n📌 Cеминар";
-                                } else {
-                                    text = text + "\n📌 Лабораторные занятия";
-                                    if (lesson.count("group")) {
-                                        text = text + "\n📌 " + string(lesson["group"]);
-                                    }
-                                }
-
-                                if (lesson.count("teacher")) {
-                                    text = text + "\n📌 " + string(lesson["teacher"]);
-                                }
-                                
-                                mesg["text"] = text;
-                                test_token.messages_send(user.second.send_id, mesg);
-
-                                // Запоминаем напомнить об перерыве
-                                notification.push_back(user.second.send_id);
-                            }
-                        } else
-
-                        if (stage_tt < json_tt[i]["time"]) { break; }
-                    }
+                for (auto i: vec_lesson) {
+                    stankin_bot.messages_send(uint(i["user"]["id"]), i["lesson"].dump(0));
                 }
             }
-
-            date::current_lesson = stage_tt;
         }
 
         // Устанавливаем свежиий идентификатор сообытий 🛠
         test_blp.set_ts(stoi(std::string(ans_longpoll_json["ts"])));
     }
 
-    // Правильное выключение
-    data_base::users::upload_data();
-    
-    
 
     return 0;
 }

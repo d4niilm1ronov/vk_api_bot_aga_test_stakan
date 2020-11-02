@@ -2,8 +2,8 @@
 //
 // vkapi
 // | ---- token_base
-// |      | ---- constructor(string)
-// |
+//        | ---- constructor(string)
+//
 // | ---- token_group
 //        | ---- constructor(string, uint)
 //        | ---- groups_getLongPollServer()
@@ -231,8 +231,10 @@ nlohmann::json vkapi::token_group::messages_send(const nlohmann::json& mesg) con
 
     // Считывание random_id
     if (mesg.count("random_id")) { request += "random_id=" +  to_string(mesg["random_id"])  + "&"; }
-    else                         { request += "random_id=" +  to_string(rand())            + "&"; }
+    else                         { request += "random_id=" +  to_string(rand())             + "&"; }
 
+
+    // Считывание keyboard,
     if (mesg.count("keyboard"))  { request += "keyboard="  +  mesg["keyboard"].dump()       + "&"; }
 
     // Считывание текста сообщения
@@ -279,7 +281,7 @@ nlohmann::json vkapi::token_group::messages_send(const nlohmann::json& mesg) con
 
     // Вывод информации
     std::cout << setw(16) << "[VK API]" << " Токен (" << std::string(begin(TOKEN), begin(TOKEN) + 10) << ") "
-              << "переустановил в Long Poll параметров" << std::endl;
+              << "использовал метод messages.send (peer_id = " << uint(mesg["peer_id"]) << ")" << std::endl;
 
     // Отправка сообщения (запроса)
     return nlohmann::json(json::parse(reqCURL (
@@ -291,7 +293,7 @@ nlohmann::json vkapi::token_group::messages_send(const nlohmann::json& mesg) con
         "&group_id="    +
         to_string(ID)   +
         "&v=5.103"
-    )));
+    )));;
 }
 
 
@@ -304,5 +306,11 @@ nlohmann::json vkapi::token_group::messages_send(const nlohmann::json& mesg) con
 nlohmann::json vkapi::token_group::messages_send(const unsigned int& peer_id, nlohmann::json mesg) const {
     mesg["peer_id"] = peer_id;
     
+    return messages_send(mesg);
+}
+
+nlohmann::json vkapi::token_group::messages_send(const unsigned int& peer_id, string text) const {
+    json mesg; mesg["peer_id"] = peer_id; mesg["text"] = text;
+
     return messages_send(mesg);
 }
