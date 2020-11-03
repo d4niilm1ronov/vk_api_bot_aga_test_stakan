@@ -1,6 +1,6 @@
-### My File ###
-# Data
-data
+### .DS_Store killer ###
+*.DS_Store
+._*
 
 # Created by https://www.toptal.com/developers/gitignore/api/c++,macos,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=c++,macos,visualstudiocode
@@ -81,7 +81,3 @@ Temporary Items
 .ionide
 
 # End of https://www.toptal.com/developers/gitignore/api/c++,macos,visualstudiocode
-.DS_Store
-.DS_Store
-.DS_Store
-.DS_Store
