@@ -26,114 +26,9 @@ using json = nlohmann::json;
 
 #include "date.hpp"
 
-#include "main.hpp"
+#include "additionally.hpp"
 
 #include "stage.hpp"
-
-
-// токен и id сообщества
-vkapi::token_group stankin_bot(string("c7364e48cab5cbd2ae3268104fb95d7b8dfa830431a664f256bf9dae36b31685efef421173ac8f784076f"), 193038255);
-
-
-
-////////////////////////////////////////////////////////////////////////
-
-bool its_text_message(const json& message) {
-    if (!message.count("text")) { return false; }
-    if (!static_cast<string>(message["text"]).size()) { return false; }
-
-    if (message.count("attachments")) {
-        if (message["attachments"].size()) {
-            return false;
-        }
-    }
-
-    if (message.count("fwd_messages")) {
-        if (message["fwd_messages"].size()) {
-            return false;
-        }
-    }
-    
-    if (message.count("reply_message")) {
-        return false;
-    }
-
-    return true;
-}
-
-////////////////////////////////////////////////////////////////////////
-
-string kill_rus_e(string str) {
-    for (unsigned int i = 0; i < str.size(); i++) {
-        if ((str[i] == -48) | (str[i] == -47)) {
-
-            if (str[i] == -48) {
-                i++;
-
-                if (str[i] == -127) {
-                    str[i] = -107;
-                }
-            }
-            
-            else {
-                i++;
-
-                if (str[i] == -111) {
-                    str[i] = -75;
-                    str[i - 1] = -48;
-                }
-            }
-
-        }
-    }
-
-    return str;
-}
-
-////////////////////////////////////////////////////////////////////////
-
-string to_upper_rus(string str) {
-    for (unsigned int i = 0; i < str.size(); i++) {
-        if ((str[i] == -48) | (str[i] == -47)) {
-
-            if (str[i] == -48) {
-                i++;
-
-                if ((str[i] >= -80) & (str[i] <= -65)) {
-                    str[i] = str[i] - 32;
-                }
-            }
-            
-            else {
-                i++;
-
-                if ((str[i] >= -128) & (str[i] <= -113)) {
-                    str[i] = str[i] + 32;
-                    i--;
-                    str[i] = -48;
-                    i++;
-                }
-            }
-
-        }
-    }
-
-    return str;
-}
-
-////////////////////////////////////////////////////////////////////////
-
-bool its_rus_name(string surname) {
-    string caps_surname = to_upper_rus(kill_rus_e(surname));
-
-    for (unsigned int i = 0; i < caps_surname.size(); i++) {
-        if (caps_surname[i] == '-') { continue; }
-        if (caps_surname[i] != -48) { return false; } else { i++; }
-        if (!((caps_surname[i] >= -112 ) & (caps_surname[i] <= -81))) { return false; }
-    }
-
-    return true;
-}
 
 ////////////////////////////////////////////////////////////////////////
 
@@ -235,7 +130,8 @@ int main(int argc, char *argv[]) {
                 break;
             }
         }
-        /*
+
+
         // Обработка новых сообщений 🔄
         for (unsigned int i = 0; ans_longpoll_json["updates"].size() > i; i++) {
             const json message = move(ans_longpoll_json["updates"][i]["object"]["message"]);
@@ -257,36 +153,16 @@ int main(int argc, char *argv[]) {
             } else {
                 // Обработка сообщения
                 result_mesg = stage::function[data_base::get_user_stage(peer_id)](message);
-            }
 
-            
-
-            // Запись random_id    
-            {
-                uint random_id;
-
-                data_base::db << "SELECT random_id FROM user WHERE id = ? ;"
-                << peer_id
-                >> random_id;
-
-                random_id++;
-
-                data_base::db << "UPDATE user SET random_id = ? WHERE id = ? ;"
-                << random_id
-                << peer_id;
-
-                result_mesg["random_id"] = random_id;
-            }
+                cout << result_mesg << endl;
+                cout << easy::vkapi::messages_send(result_mesg, peer_id) << endl;
                 
-            cout << result_mesg.dump(1) << endl;
-            cout << stankin_bot.messages_send(peer_id, result_mesg) << endl;
-            
+            }
         }
-        */
 
 
         // Если началось время следующей пары (Рассылка уведомлений о занятий)
-
+        /*
         if (time_university::last_number_lesson != time_university::get_current_number_lesson()) {
             cout << 's' << endl;
             time_university::last_number_lesson = time_university::get_current_number_lesson();
@@ -307,6 +183,8 @@ int main(int argc, char *argv[]) {
                 }
             }
         }
+        */
+
 
         // Устанавливаем свежиий идентификатор сообытий 🛠
         test_blp.set_ts(stoi(std::string(ans_longpoll_json["ts"])));
