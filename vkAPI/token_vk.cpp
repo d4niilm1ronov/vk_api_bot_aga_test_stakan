@@ -1,3 +1,18 @@
+// ОПИСАНИЕ: Определение конструкторов и методов классов
+//
+// vkapi
+// | ---- token_base
+//        | ---- constructor(string)
+//
+// | ---- token_group
+//        | ---- constructor(string, uint)
+//        | ---- groups_getLongPollServer()
+//        | ---- groups_getLongPollSettings()
+//        | ---- groups_setLongPollSettings(string, bool)
+//        | ---- groups_setLongPollSettings(json)
+//        | ---- messages_send(json)
+//        | ---- messages_send(id, json)
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -14,34 +29,37 @@ using json = nlohmann::json;
     #include "long_poll.hpp"
     #include "token_vk.hpp"
 
-////////////////////////////////////////////////////////////////////////
-//-----------------//     VKAPI :: token_base    //-------------------//
-////////////////////////////////////////////////////////////////////////
 
 
+// НАЗВАНИЕ: Конструктор класса vkapi::token_base
+// ОПИСАНИЕ: Конструктор для базового класса, для работы с токенами ВКонтакте.
+//           Инициализирует объект cURL, для работы с запросами
+//           и поле, содержащую токен в виде STRING
 vkapi::token_base::token_base(string token) : TOKEN(token), objCURL(curl_easy_init()) {
     curl_easy_setopt(objCURL, CURLOPT_WRITEFUNCTION, cts);
 }
 
 
-
-////////////////////////////////////////////////////////////////////////
-//----------------//     VKAPI :: token_group    //-------------------//
-////////////////////////////////////////////////////////////////////////
-
+// НАЗВАНИЕ: Конструктор класса vkapi::token_group
+// ОПИСАНИЕ: Конструктор для класса токенов групп ВКонтакте.
+//           Принимает токен и ID группы, чтобы проинициализировать поля
+//           Запрашивает и локально устанавливает параметры Long Poll
 vkapi::token_group::token_group(string token_str, unsigned int id) : vkapi::token_base(token_str),  ID(id) {
 
-    std::cout << "[VK API] Create new token (group id" << id
-              << ") token: " << std::string(begin(token_str), begin(token_str) + 10) << "..." << std::endl;
+        groups_setLongPollSettings(groups_getLongPollSettings());
 
-    groups_setLongPollSettings(groups_getLongPollSettings());
-}
+        // Вывод информации в консоль
+        std::cout << setw(16) << "[VK API]" << " Create new token (group id" << id << ") "
+        "token: " << std::string(begin(token_str), begin(token_str) + 10) << "..." << std::endl;
+    }
 
-////////////////////////////////////////////////////////////////////////
 
+// НАЗВАНИЕ: Метод vkapi::token_group для получения объекта vkapi::bots_long_poll
+// ОПИСАНИЕ: Конструктор для класса токенов групп ВКонтакте.
+//           Принимает токен и ID группы, чтобы проинициализировать поля
+//           Запрашивает и локально устанавливает параметры Long Poll
 vkapi::bots_long_poll vkapi::token_group::groups_getLongPollServer() const {
-    std::cout << "[VK API] groups.getLongPollServer" << std::endl;
-
+    // Делаем запрос, чтобы узнать параметры для Long Poll
     json answer = json::parse(
         reqCURL (
             objCURL,
@@ -53,6 +71,9 @@ vkapi::bots_long_poll vkapi::token_group::groups_getLongPollServer() const {
         )
     );
 
+    // Вывод информации
+    std::cout << setw(16) << "[VK API]" << " Токен (" << std::string(begin(TOKEN), begin(TOKEN) + 10) << ") "
+              << " запросил данные для Long Boll в виде объекта класса"<< std::endl;
 
     return vkapi::bots_long_poll(
              answer["response"]["server"],
@@ -61,10 +82,14 @@ vkapi::bots_long_poll vkapi::token_group::groups_getLongPollServer() const {
     );
 }
 
-////////////////////////////////////////////////////////////////////////
 
+// НАЗВАНИЕ: Метод vkapi::token_group для получения настроек Long Poll
+// ОПИСАНИЕ: Возвращает настройки Long Poll из группы, которой принадлежит данный токен,
+//           в формате JSON по данному токена
 nlohmann::json vkapi::token_group::groups_getLongPollSettings() const {
-    std::cout << "[VK API] groups.getLongPollSettings" << std::endl;
+    // Вывод информации
+    std::cout << setw(16) << "[VK API]" << " Токен (" << std::string(begin(TOKEN), begin(TOKEN) + 10) << ") "
+              << "запросил настройки Long Boll в виде .json"<< std::endl;
 
     return nlohmann::json ( nlohmann::json::parse (
         reqCURL (
@@ -78,10 +103,9 @@ nlohmann::json vkapi::token_group::groups_getLongPollSettings() const {
     ) ) ;
 }
 
-////////////////////////////////////////////////////////////////////////
 
+// НАЗВАНИЕ: Метод vkapi::token_group для установки параметра для Long Poll по названию и флага типа bool
 nlohmann::json vkapi::token_group::groups_setLongPollSettings(const std::string& param, const bool& value) const {
-    std::cout << "[VK API] groups.setLongPollSettings" << std::endl;
 
     std::string request = "api_version=5.103&";
 
@@ -94,6 +118,10 @@ nlohmann::json vkapi::token_group::groups_setLongPollSettings(const std::string&
 
         request += to_string(static_cast<int>(value));
     }
+
+    // Вывод информации
+    std::cout << setw(16) << "[VK API]" << " Токен (" << std::string(begin(TOKEN), begin(TOKEN) + 10) << ") "
+              << "установил у Long Poll параметр " << param << " значение " << value << std::endl;
 
     return nlohmann::json ( nlohmann::json::parse (
         reqCURL (
@@ -109,8 +137,9 @@ nlohmann::json vkapi::token_group::groups_setLongPollSettings(const std::string&
     ) ) ;
 }
 
-//----------------------------------------------------------------------
 
+// НАЗВАНИЕ: Метод vkapi::token_group для установки конфига с параметров для Long Poll
+// ОПИСАНИЕ: Конфиг формата .json, который содержит параметры и значения к ним, которые нужно поменять
 nlohmann::json vkapi::token_group::groups_setLongPollSettings(const nlohmann::json& setting_json) const {
     std::string request;
 
@@ -173,7 +202,9 @@ nlohmann::json vkapi::token_group::groups_setLongPollSettings(const nlohmann::js
 
     }
 
-    std::cout << "[VK API] groups.setLongPollSettings" << std::endl;
+    // Вывод информации
+    std::cout << setw(16) << "[VK API]" << " Токен (" << std::string(begin(TOKEN), begin(TOKEN) + 10) << ") "
+              << "переустановил в Long Poll параметров" << std::endl;
 
     return nlohmann::json ( nlohmann::json::parse (
         reqCURL (
@@ -189,8 +220,9 @@ nlohmann::json vkapi::token_group::groups_setLongPollSettings(const nlohmann::js
     ) ) ;
 }
 
-////////////////////////////////////////////////////////////////////////
 
+// НАЗВАНИЕ: Метод vkapi::token_group для отправки сообщений (реализация messages.send)
+// ОПИСАНИЕ: В качестве аргументов принимает объект Сообщение (см. в документации) в виде .json
 nlohmann::json vkapi::token_group::messages_send(const nlohmann::json& mesg) const {
     string request;
 
@@ -199,8 +231,10 @@ nlohmann::json vkapi::token_group::messages_send(const nlohmann::json& mesg) con
 
     // Считывание random_id
     if (mesg.count("random_id")) { request += "random_id=" +  to_string(mesg["random_id"])  + "&"; }
-    else                         { request += "random_id=" +  to_string(rand())            + "&"; }
+    else                         { request += "random_id=" +  to_string(rand())             + "&"; }
 
+
+    // Считывание keyboard,
     if (mesg.count("keyboard"))  { request += "keyboard="  +  mesg["keyboard"].dump()       + "&"; }
 
     // Считывание текста сообщения
@@ -243,7 +277,11 @@ nlohmann::json vkapi::token_group::messages_send(const nlohmann::json& mesg) con
     // Адаптируем пробелы
     replace(request.begin(), request.end(), ' ', '+');
 
-    std::cout << "[VK API] Отправлено сообщение по адресу [id" << (unsigned int)mesg["peer_id"] << "]" << std::endl;
+    
+
+    // Вывод информации
+    std::cout << setw(16) << "[VK API]" << " Токен (" << std::string(begin(TOKEN), begin(TOKEN) + 10) << ") "
+              << "использовал метод messages.send (peer_id = " << uint(mesg["peer_id"]) << ")" << std::endl;
 
     // Отправка сообщения (запроса)
     return nlohmann::json(json::parse(reqCURL (
@@ -255,13 +293,24 @@ nlohmann::json vkapi::token_group::messages_send(const nlohmann::json& mesg) con
         "&group_id="    +
         to_string(ID)   +
         "&v=5.103"
-    )));
+    )));;
 }
 
-nlohmann::json vkapi::token_group::messages_send(const unsigned int& id, nlohmann::json mesg) const {
-    mesg["peer_id"] = id;
+
+// НАЗВАНИЕ: Метод vkapi::token_group для отправки сообщений (реализация messages.send)
+// ОПИСАНИЕ: В качестве аргументов принимается peer_id (ID получателя)
+//           и объект Сообщение (см. в документации) в виде .json .
+//           Данный метод используется для отправки готовых объектов Сообщений,
+//           для которых нужно изменить только peer_id,
+//           т.е. отпадает надобность менять json объект в теле, откуда отправляется сообщение
+nlohmann::json vkapi::token_group::messages_send(const unsigned int& peer_id, nlohmann::json mesg) const {
+    mesg["peer_id"] = peer_id;
     
     return messages_send(mesg);
 }
 
-////////////////////////////////////////////////////////////////////////
+nlohmann::json vkapi::token_group::messages_send(const unsigned int& peer_id, string text) const {
+    json mesg; mesg["peer_id"] = peer_id; mesg["text"] = text;
+
+    return messages_send(mesg);
+}
