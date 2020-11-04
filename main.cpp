@@ -179,7 +179,7 @@ int main(int argc, char *argv[]) {
                 cout << vec_lesson.size() << endl;
 
                 for (auto i: vec_lesson) {
-                    stankin_bot.messages_send(uint(i["user"]["id"]), i["lesson"].dump(0));
+                    easy::vkapi::messages_send(i["lesson"].dump(0), uint(i["user"]["id"]))
                 }
             }
         }

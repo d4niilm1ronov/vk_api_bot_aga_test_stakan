@@ -662,7 +662,7 @@ json stage :: setting_timetable_lab_group (const json& message) {
     if (result == "menu_user") {
         data_base::add_lesson(peer_id, institute * 10000 + year_group * 100 + num_group, num_lab_group);
 
-        stankin_bot.messages_send(peer_id, string("Расписание установлено! 🥳"));
+        easy::vkapi::messages_send(string("Расписание установлено! 🥳"), peer_id);
         mesg_result = stage::message["menu_user"];
         user_cache = json::parse("{}");
     } else
