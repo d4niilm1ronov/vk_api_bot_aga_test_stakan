@@ -165,7 +165,7 @@ json easy::vkapi::messages_send(json message, const uint& peer_id) {
 
 ////////////////////////////////////////////////////////////////////////
 
-json messages_send(const string& text, const uint& peer_id) {
+json easy::vkapi::messages_send(const string& text, const uint& peer_id) {
     json message;
     message["text"] = text;
 
