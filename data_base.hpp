@@ -46,6 +46,7 @@ namespace data_base {
     extern json get_group_labs(const uint& institute, const uint& year, const uint& num);
 
 
+    extern void add_lesson(const uint& user_id, const uint& id_group);
     extern void add_lesson(const uint& user_id, const uint& id_group, const uint id_lab_group);
 
 
