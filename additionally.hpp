@@ -1,5 +1,5 @@
-#if !defined(MAIN_NAMESPACE)
-#define MAIN_NAMESPACE
+#if !defined(ADDITIONALLY_NAMESPACE)
+#define ADDITIONALLY_NAMESPACE
 
 /////////////////////////////////////////////////////////////////////////////
 
