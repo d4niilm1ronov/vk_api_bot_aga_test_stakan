@@ -157,9 +157,9 @@ int main(int argc, char *argv[]) {
 
 
         // Если началось время следующей пары (Рассылка уведомлений о занятий)
-        /*
+
         if (time_university::last_number_lesson != time_university::get_current_number_lesson()) {
-            cout << 's' << endl;
+
             time_university::last_number_lesson = time_university::get_current_number_lesson();
 
             // Проверка на то, что это пара, а не конец учебного дня
@@ -169,16 +169,28 @@ int main(int argc, char *argv[]) {
                     time_university::get_current_date()
                 );
 
-                cout << time_university::last_number_lesson << endl << time_university::get_current_date() << endl;
-
-                cout << vec_lesson.size() << endl;
-
                 for (auto i: vec_lesson) {
-                    easy::vkapi::messages_send(i["lesson"].dump(0), uint(i["user"]["id"]))
+                    string text = "Следующее занятие 👩‍🏫\n\n";
+                    text = text + string(i["lesson"]["name"]);
+                    
+
+                    if (int(i["lesson"]["type"]) == 1) { text = text + " [Лекция]\n"; } else
+                    if (int(i["lesson"]["type"]) == 2) { text = text + " [Семинар]\n"; } else
+                                                       { text = text + " [Лабораторная работа]\n"; }
+
+                    if (i["lesson"]["place"] != "null") {
+                        text = text + "Аудитория: " + string(i["lesson"]["place"]) + "\n";
+                    }
+
+                    if (i["lesson"]["teacher"] != "null") {
+                        text = text + "Преподаватель: " + string(i["lesson"]["teacher"]) + "\n";
+                    }
+                    
+
+                    easy::vkapi::messages_send(text, uint(i["user"]["id"]));
                 }
             }
         }
-        */
 
 
         // Устанавливаем свежиий идентификатор сообытий 🛠
