@@ -136,7 +136,6 @@ int main(int argc, char *argv[]) {
         for (unsigned int i = 0; ans_longpoll_json["updates"].size() > i; i++) {
             const json message = move(ans_longpoll_json["updates"][i]["object"]["message"]);
             uint peer_id = message["peer_id"];
-            json result_mesg;
 
             // Заглушка от сообщества 
             if (peer_id >= 2000000000) { continue; } else
@@ -144,19 +143,15 @@ int main(int argc, char *argv[]) {
             // Добавление нового пользователя 
             if (!data_base::check_user_id(peer_id)) {
                 data_base::add_user(peer_id);
-                result_mesg = stage::message["menu_guest"];
+                easy::vkapi::messages_send(stage::message["menu_guest"], peer_id);
             } else
 
             // Проверка на Текстовое сообщение
             if (!its_text_message(message)) {
-                result_mesg["text"] = "Я понимаю только номера пунктов меню и нажатия на кнопки 🤷‍♀️"; 
+                easy::vkapi::messages_send(string("Я понимаю только номера пунктов меню и нажатия на кнопки 🤷‍♀️"), peer_id); 
             } else {
                 // Обработка сообщения
-                result_mesg = stage::function[data_base::get_user_stage(peer_id)](message);
-
-                cout << result_mesg << endl;
-                cout << easy::vkapi::messages_send(result_mesg, peer_id) << endl;
-                
+                stage::function[data_base::get_user_stage(peer_id)](message);
             }
         }
 

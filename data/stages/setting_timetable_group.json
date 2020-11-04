@@ -1,0 +1,1 @@
+{"text":"Выберите номер группы 🔢","keyboard":{"buttons":[[{"action":{"type":"text","label":"Группа","payload":"1"},"color":"primary"}],[{"action":{"type":"text","label":"Назад","payload":"20545"},"color":"secondary"}]]}}

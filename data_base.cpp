@@ -90,7 +90,7 @@ bool data_base::check_user_id(const uint& id) {
 
 void data_base::add_user(uint user_id) {
     data_base::db << "INSERT INTO user (cache, stage , id) "
-                     "VALUES ( '{}' , 'menu_guest' , ? );"
+                     "VALUES ( '{\"menu\": \"guest\"}' , 'menu_guest' , ? );"
                   << user_id;
 }
 
