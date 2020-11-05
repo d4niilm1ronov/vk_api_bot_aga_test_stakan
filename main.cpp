@@ -158,15 +158,15 @@ int main(int argc, char *argv[]) {
 
         // Если началось время следующей пары (Рассылка уведомлений о занятий)
 
-        if (time_university::last_number_lesson != time_university::get_current_number_lesson()) {
+        if (time_stakan::last_number_lesson != time_stakan::get_current_number_lesson()) {
 
-            time_university::last_number_lesson = time_university::get_current_number_lesson();
+            time_stakan::last_number_lesson = time_stakan::get_current_number_lesson();
 
             // Проверка на то, что это пара, а не конец учебного дня
-            if (time_university::last_number_lesson) {
+            if (time_stakan::last_number_lesson) {
                 auto vec_lesson = data_base::get_cur_less(
-                    time_university::last_number_lesson,
-                    time_university::get_current_date()
+                    time_stakan::last_number_lesson,
+                    time_stakan::get_current_date().format_yymmdd()
                 );
 
                 for (auto i: vec_lesson) {
