@@ -41,7 +41,7 @@ uint time_university::get_current_date() {
     time (&rawtime);
     timeinfo = localtime (&rawtime);
 
-    return (timeinfo -> tm_mday) * 10000 + (timeinfo -> tm_mon + 1) * 100 + 20;
+    return ((timeinfo -> tm_year) % 100) * 10000 + (timeinfo -> tm_mon + 1) * 100 + (timeinfo -> tm_mday);
 }
 
 //---------------------------------------------------------------------------
