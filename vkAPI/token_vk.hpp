@@ -17,17 +17,16 @@ class vkapi::token_group : public vkapi::token_base {
         unsigned int ID;
 
     public:
+        token_group(void);
         token_group(string, unsigned int);
-
 
         nlohmann::json messages_send(const nlohmann::json&) const;
         nlohmann::json messages_send(const unsigned int&, nlohmann::json) const;
         nlohmann::json messages_send(const unsigned int&, string) const;
-        vkapi::bots_long_poll groups_getLongPollServer() const;
-        nlohmann::json groups_getLongPollSettings() const;
-        nlohmann::json groups_setLongPollSettings(const nlohmann::json&) const;
-        nlohmann::json groups_setLongPollSettings(const std::string&, const bool&) const;
 
+        vkapi::bots_long_poll groups_getLongPollServer() const;
+
+        token_group& operator=(const token_group&);
 };
 
 #endif

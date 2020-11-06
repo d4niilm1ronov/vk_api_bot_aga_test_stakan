@@ -22,16 +22,9 @@ using json = nlohmann::json;
 #include "vkAPI/long_poll.hpp"
 #include "vkAPI/token_vk.hpp"
 
-#include "data_base.hpp"
-
 #include "additionally.hpp"
 
-
-////////////////////////////////////////////////////////////////////////
-
-
-// токен и id сообщества
-vkapi::token_group stankin_bot(string("c7364e48cab5cbd2ae3268104fb95d7b8dfa830431a664f256bf9dae36b31685efef421173ac8f784076f"), 193038255);
+#include "data_base.hpp"
 
 
 ////////////////////////////////////////////////////////////////////////

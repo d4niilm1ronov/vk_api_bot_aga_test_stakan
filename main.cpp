@@ -30,7 +30,16 @@ using json = nlohmann::json;
 
 #include "stage.hpp"
 
-////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////
+
+
+// токен и id сообщества
+vkapi::token_group stankin_bot("MDA", 180900);
+
+
+///////////////////////////////////////////////////////////////////////////
+
 
 int main(int argc, char *argv[]) {
 
@@ -49,9 +58,8 @@ int main(int argc, char *argv[]) {
         if (argc > 2) { ifstream(argv[2]) >> int_ans; }
         else { cout << "Введите ID сообщества вашего бота: "; cin >> int_ans; }
 
-        // [Изменить]
-        // создание нового токена
-        // старый_токен = новый_токен
+        vkapi::token_group new_token(str_ans, int_ans);
+        stankin_bot = new_token;
 
         // АРГУМЕНТ 3: название файла БД (SQLite 3)
         if (argc > 3) { ifstream(argv[3]) >> str_ans; }
