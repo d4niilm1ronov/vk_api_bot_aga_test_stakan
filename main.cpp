@@ -98,37 +98,36 @@ int main(int argc, char *argv[]) {
     }
 
     
+    // Соединение для работы с Bots LongPoll VK API
+    auto bots_longpoll__stankin_bot = stankin_bot.groups_getLongPollServer();
 
+    // Ответ от VK API (по технологии LongPoll) в формате Json
+    json json__answer_longpoll;
 
-    // Остальное
-    json ans_longpoll_json;
-
-    auto test_blp = stankin_bot.groups_getLongPollServer();
-    vkapi::token_group& test_token = stankin_bot;
 
     // Самый главный цикл 💪😎
     while(true) {
 
         // Собираем события от Bots Long Poll API 📩
-        ans_longpoll_json = test_blp.request_lp();
+        json__answer_longpoll = bots_longpoll__stankin_bot.request_lp();
 
         // Обработка ошибок в ответе от Bots Long Poll API 📛
-        if (ans_longpoll_json.count("failed")) {
+        if (json__answer_longpoll.count("failed")) {
             // Ошибка связанная с ts (1)
-            if (ans_longpoll_json["failed"] == 1) {
-                test_blp.set_ts(ans_longpoll_json["ts"]);
+            if (json__answer_longpoll["failed"] == 1) {
+                bots_longpoll__stankin_bot.set_ts(json__answer_longpoll["ts"]);
                 continue;
             } else
             
             // Ошибка связанная с key (2)
-            if (ans_longpoll_json["failed"] == 2) {
-                test_blp = test_token.groups_getLongPollServer();
+            if (json__answer_longpoll["failed"] == 2) {
+                bots_longpoll__stankin_bot = stankin_bot.groups_getLongPollServer();
                 continue;
             } else
 
             // Ошибка связанная с key и ts (3)
-            if (ans_longpoll_json["failed"] == 3) {
-                test_blp = test_token.groups_getLongPollServer();
+            if (json__answer_longpoll["failed"] == 3) {
+                bots_longpoll__stankin_bot = stankin_bot.groups_getLongPollServer();
                 continue;
             }
             
@@ -141,8 +140,8 @@ int main(int argc, char *argv[]) {
 
 
         // Обработка новых сообщений 🔄
-        for (unsigned int i = 0; ans_longpoll_json["updates"].size() > i; i++) {
-            const json message = move(ans_longpoll_json["updates"][i]["object"]["message"]);
+        for (unsigned int i = 0; json__answer_longpoll["updates"].size() > i; i++) {
+            const json message = move(json__answer_longpoll["updates"][i]["object"]["message"]);
             uint peer_id = message["peer_id"];
 
             // Заглушка от сообщества 
@@ -232,7 +231,7 @@ int main(int argc, char *argv[]) {
 
 
         // Устанавливаем свежиий идентификатор сообытий 🛠
-        test_blp.set_ts(stoi(std::string(ans_longpoll_json["ts"])));
+        bots_longpoll__stankin_bot.set_ts(stoi(std::string(json__answer_longpoll["ts"])));
     }
 
 
