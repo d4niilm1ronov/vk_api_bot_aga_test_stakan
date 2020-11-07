@@ -172,12 +172,15 @@ int main(int argc, char *argv[]) {
 
             // Проверка на то, что это пара, а не конец учебного дня
             if (time_stakan::last_number_lesson) {
-                auto vec_lesson = data_base::get_cur_less(
+                // Получаю в Вектор занятия, о которых нужно предупредить
+                auto vector__lesson_user = data_base::get_cur_less(
                     time_stakan::last_number_lesson,
                     time_stakan::get_current_date().format_yymmdd()
                 );
 
-                for (auto i: vec_lesson) {
+
+                // Рассылка сообщений об предстоящем занятии    
+                for (auto i: vector__lesson_user) {
                     string text = "Следующее занятие 👩‍🏫\n\n";
                     text = text + string(i["lesson"]["name"]);
                     
@@ -196,6 +199,33 @@ int main(int argc, char *argv[]) {
                     
 
                     easy::vkapi::messages_send(text, uint(i["user"]["id"]));
+                }
+
+                // Обновляем даты у записей занятий
+                for (auto iter: vector__lesson_user) {
+
+                    // Если это последняя дата у занятия
+                    if (iter["lesson"]["date"] == iter["lesson"]["date_end"]) {
+                        // Удаляем запись этого занятия
+                        data_base::db << "DELETE FROM lesson WHERE id = ? ;"
+                                      << uint(iter["lesson"]["id"]);
+                    }
+
+                    // Если это НЕ последняя дата у занятия
+                    else {
+                        uint date_YYMMDD = iter["lesson"]["date"];
+                        time_stakan::date next_date(date_YYMMDD);
+
+                        // Увеличиваем дату следующего занятия на 1 или 2 недели
+                        if (iter["lesson"]["repit"] == 2) { next_date = next_date.plus_two_week(); }
+                        else                              { next_date = next_date.plus_one_week(); }
+
+                        // Обновляем запись этого занятия
+                        data_base::db << "UPDATE lesson SET date = ? WHERE id = ? ;"
+                                      << next_date.format_yymmdd()
+                                      << uint(iter["lesson"]["id"]);
+                    }
+
                 }
             }
         }

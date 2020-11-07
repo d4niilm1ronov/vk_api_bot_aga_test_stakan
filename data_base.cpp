@@ -24,16 +24,19 @@ sqlite::database data_base::db(":memory:");
 
 /////////////////////////////////////////////////////////////////////////////
 
-vector<json> data_base::get_cur_less(uint number_lesson, uint date) {
+vector<json> data_base::get_cur_less(uint number_lesson, uint date_YYMMDD) {
     vector<json> vector__result;
     
-
+    // Делаем запрос информации о текущих занятиях.
+    // Обрабатываем их в лямбде (как цикл).
+    // Также, обновляем в БД поле date, если пара еще будет (см на поле date_end),
+    // иначе строка удаляется.
     data_base::db << "SELECT les.id, les.name, les.type, les.lab_group, les.teacher, "
                      "       les.place, les.id_place, les.repit, les.date_end, "
                      "       user.id, user.stage, user.cache "
                      "FROM lesson AS les, user "
                      "WHERE (les.user_id = user.id) AND ((les.time = ?) AND (les.date = ?));"
-       << number_lesson << date >> [&vector__result](
+       << number_lesson << date_YYMMDD >> [&vector__result, date_YYMMDD, number_lesson](
             uint   les__id,
             string les__name,
             uint   les__type,
@@ -53,6 +56,8 @@ vector<json> data_base::get_cur_less(uint number_lesson, uint date) {
             json__result["lesson"] = json();
             json__result["user"]   = json();
 
+            json__result["lesson"]["date"]       = date_YYMMDD;
+            json__result["lesson"]["time"]       = number_lesson;
             json__result["lesson"]["name"]       = les__name;
             json__result["lesson"]["type"]       = les__type;
             json__result["lesson"]["lab_group"]  = les__lab_group;

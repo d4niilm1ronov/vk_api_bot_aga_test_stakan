@@ -10,7 +10,7 @@ namespace data_base {
 //---------------------------------------------------------------------------
 
 
-    extern vector<json> get_cur_less(uint number_lesson, uint date);
+    extern vector<json> get_cur_less(uint number_lesson, uint date_YYMMDD);
 
 
     // НАЗВАНИЕ: Проверка юзера на вхождение в базу данных
