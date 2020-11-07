@@ -94,6 +94,7 @@ uint time_stakan::get_current_number_lesson() {
     if (uint_time >= 1740 & uint_time < 1930) { return 6; }
     if (uint_time >= 1930 & uint_time < 2110) { return 7; }
     if (uint_time >= 2120 & uint_time < 2250) { return 8; }
+    if (uint_time >= 2250)                    { return 9; }
 
     return 0;
 }

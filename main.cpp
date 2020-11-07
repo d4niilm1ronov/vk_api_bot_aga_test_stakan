@@ -61,6 +61,7 @@ int main(int argc, char *argv[]) {
         vkapi::token_group new_token(str_ans, int_ans);
         stankin_bot = new_token;
 
+
         // АРГУМЕНТ 3: название файла БД (SQLite 3)
         if (argc > 3) { ifstream(argv[3]) >> str_ans; }
         else { cout << "Введите название файла базы данных (SQLite 3): "; cin >> str_ans; }
@@ -97,6 +98,57 @@ int main(int argc, char *argv[]) {
 
     }
 
+
+    // Удаление/Обновление записей прошедших занятий из таблиц «lesson» и «lesson_stankin»
+    {
+        uint current_date__YYMMDD = time_stakan::get_current_date().format_yymmdd();
+
+        // Удаление из lesson (таблица с занятиями, на которые подписаны пользователи)
+        data_base::db << "DELETE FROM lesson WHERE (date_end < ? ) OR ( (date <= ? ) AND (date_end = ? ) AND (time < ? ) ) ;"
+                      << current_date__YYMMDD << current_date__YYMMDD << current_date__YYMMDD
+                      << time_stakan::get_current_number_lesson();
+
+        // Удаление из lesson_stankin (таблица с занятиями из расписания, на которые могут подписаться пользователи)
+        data_base::db << "DELETE FROM lesson_stankin WHERE (date_end < ? ) OR ( (date <= ? ) AND (date_end = ? ) AND (time < ? ) ) ;"
+                      << current_date__YYMMDD << current_date__YYMMDD << current_date__YYMMDD
+                      << time_stakan::get_current_number_lesson();
+
+        // Обновление записей занятий, которые еще не закончились
+        if (time_stakan::last_number_lesson != 0) {
+
+            // Дата которая сейчас (в типе time_stakan::date)
+            time_stakan::date current_date = time_stakan::get_current_date();
+
+            // Получаю в Вектор предыдущии занятия
+            auto vector__lesson_user = data_base::get_cur_less(
+                time_stakan::last_number_lesson ,
+                current_date.format_yymmdd()
+            );
+
+            // Цикл по всем записям занятий
+            for (auto iter: vector__lesson_user) {
+
+                uint date_YYMMDD         = iter["lesson"]["date"];
+                uint current_date_YYMMDD = current_date.format_yymmdd();
+
+                while (current_date_YYMMDD > date_YYMMDD) {
+                    if (iter["lesson"]["repit"] == 1) {
+                        date_YYMMDD = time_stakan::date(date_YYMMDD) .plus_one_week() .format_yymmdd();
+                    } else {
+                        date_YYMMDD = time_stakan::date(date_YYMMDD) .plus_two_week() .format_yymmdd();
+                    }
+                }
+
+                // Изменяем дату в БД
+                data_base::db << "UPDATE lesson SET date = ? WHERE id = ? ;"
+                              << date_YYMMDD
+                              << uint(iter["lesson"]["id"]);
+
+            }
+        }
+    
+    }
+    
     
     // Соединение для работы с Bots LongPoll VK API
     auto bots_longpoll__stankin_bot = stankin_bot.groups_getLongPollServer();
@@ -107,9 +159,10 @@ int main(int argc, char *argv[]) {
 
     // Самый главный цикл 💪😎
     while(true) {
-
+        
         // Собираем события от Bots Long Poll API 📩
-        json__answer_longpoll = bots_longpoll__stankin_bot.request_lp();
+        json json__answer_longpoll = bots_longpoll__stankin_bot.request_lp();
+
 
         // Обработка ошибок в ответе от Bots Long Poll API 📛
         if (json__answer_longpoll.count("failed")) {
@@ -164,13 +217,12 @@ int main(int argc, char *argv[]) {
 
 
         // Если началось время следующей пары (Рассылка уведомлений о занятий)
-
         if (time_stakan::last_number_lesson != time_stakan::get_current_number_lesson()) {
 
             time_stakan::last_number_lesson = time_stakan::get_current_number_lesson();
 
             // Проверка на то, что это пара, а не конец учебного дня
-            if (time_stakan::last_number_lesson) {
+            if ((time_stakan::last_number_lesson > 0) and (time_stakan::last_number_lesson < 9)) {
                 // Получаю в Вектор занятия, о которых нужно предупредить
                 auto vector__lesson_user = data_base::get_cur_less(
                     time_stakan::last_number_lesson,
@@ -200,31 +252,49 @@ int main(int argc, char *argv[]) {
                     easy::vkapi::messages_send(text, uint(i["user"]["id"]));
                 }
 
-                // Обновляем даты у записей занятий
-                for (auto iter: vector__lesson_user) {
 
-                    // Если это последняя дата у занятия
-                    if (iter["lesson"]["date"] == iter["lesson"]["date_end"]) {
-                        // Удаляем запись этого занятия
-                        data_base::db << "DELETE FROM lesson WHERE id = ? ;"
-                                      << uint(iter["lesson"]["id"]);
+                // Удаление/Обновление записей прошлых занятий
+                if (time_stakan::last_number_lesson != 0) {
+
+                    // Дата которая сейчас (в типе time_stakan::date)
+                    time_stakan::date current_date = time_stakan::get_current_date();
+
+                    // Получаю в Вектор предыдущии занятия
+                    auto vector__lesson_user = data_base::get_cur_less(
+                        time_stakan::last_number_lesson - 1,
+                        current_date.format_yymmdd()
+                    );
+
+                    // Цикл по всем записям 
+                    for (auto iter: vector__lesson_user) {
+
+                        // Если это последняя дата у занятия
+                        if (current_date.format_yymmdd() == iter["lesson"]["date_end"]) {
+                            // Удаляем запись этого занятия
+                            data_base::db << "DELETE FROM lesson WHERE id = ? ;"
+                                            << uint(iter["lesson"]["id"]);
+                        }
+
+                        // Если это НЕ последняя дата у занятия
+                        else {
+                            uint date_YYMMDD = iter["lesson"]["date"];
+                            time_stakan::date next_date(date_YYMMDD);
+
+                            // Увеличиваем дату следующего занятия на 1-2 недели
+                            if (iter["lesson"]["repit"] == 2) {
+                                data_base::db << "UPDATE lesson SET date = ? WHERE id = ? ;"
+                                              << current_date .plus_two_week() .format_yymmdd()
+                                              << uint(iter["lesson"]["id"]);
+                            }
+
+                            else {
+                                data_base::db << "UPDATE lesson SET date = ? WHERE id = ? ;"
+                                              << current_date .plus_one_week() .format_yymmdd()
+                                              << uint(iter["lesson"]["id"]);
+                            }
+                        }
+
                     }
-
-                    // Если это НЕ последняя дата у занятия
-                    else {
-                        uint date_YYMMDD = iter["lesson"]["date"];
-                        time_stakan::date next_date(date_YYMMDD);
-
-                        // Увеличиваем дату следующего занятия на 1 или 2 недели
-                        if (iter["lesson"]["repit"] == 2) { next_date = next_date.plus_two_week(); }
-                        else                              { next_date = next_date.plus_one_week(); }
-
-                        // Обновляем запись этого занятия
-                        data_base::db << "UPDATE lesson SET date = ? WHERE id = ? ;"
-                                      << next_date.format_yymmdd()
-                                      << uint(iter["lesson"]["id"]);
-                    }
-
                 }
             }
         }
