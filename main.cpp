@@ -43,31 +43,27 @@ vkapi::token_group stankin_bot("MDA", 180900);
 
 int main(int argc, char *argv[]) {
 
+
     // Инициализация вк-токена и базы данных
     {
-        string str_ans;
-        int int_ans;
+        if (argc < 2) { cout << "Список аргументов: json__name_confing [, db3__name_data_base]" << endl; exit(1); }
+        if (argc > 3) { cout << "Список аргументов: json__name_confing [, db3__name_data_base]" << endl; exit(1); }
 
-        // АРГУМЕНТ 1: название файла, в котором хранится токен бота,
-        // к сообществу ВКонтакте которому он принадлжеит
-        if (argc > 1) { ifstream(argv[1]) >> str_ans; }
-        else { cout << "Введите токен сообщества вашего бота: "; cin >> str_ans; }
+        // Работа с токеном ВКонтакте
+        json json__config;
+        ifstream(argv[1]) >> json__config;
 
-        // АРГУМЕНТ 2: название файла, в котором хранится ID сообщества ВКонтакте,
-        // к которому принадлежит бот
-        if (argc > 2) { ifstream(argv[2]) >> int_ans; }
-        else { cout << "Введите ID сообщества вашего бота: "; cin >> int_ans; }
-
-        vkapi::token_group new_token(str_ans, int_ans);
-        stankin_bot = new_token;
+        stankin_bot = vkapi::token_group(string(json__config["token"]), uint(json__config["group_id"]));
 
 
-        // АРГУМЕНТ 3: название файла БД (SQLite 3)
-        if (argc > 3) { ifstream(argv[3]) >> str_ans; }
-        else { cout << "Введите название файла базы данных (SQLite 3): "; cin >> str_ans; }
+        // Работа с БД
+        string string__name_db;
+
+        if (argc > 2) { string__name_db = argv[2]; }
+        else { cout << "Введите название файла базы данных (SQLite 3): "; cin >> string__name_db; }
 
         // Установка базы данных
-        sqlite::database test_db(argv[3]); data_base::db = test_db;
+        sqlite::database test_db(string__name_db); data_base::db = test_db;
     }
 
 

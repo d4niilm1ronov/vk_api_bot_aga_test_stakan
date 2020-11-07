@@ -1,5 +1,6 @@
 my_data
 .vscode
+config.json
 
 ### .DS_Store killer ###
 *.DS_Store
