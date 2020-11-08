@@ -24,13 +24,125 @@ sqlite::database data_base::db(":memory:");
 
 /////////////////////////////////////////////////////////////////////////////
 
+vector<json> data_base::get_lesson__user(uint id_user, uint date_YYMMDD) {
+    vector<json> vector__result;
+    
+    // Делаем запрос информации о текущих занятиях.
+    // Обрабатываем их в лямбде (как цикл).
+    data_base::db << "SELECT les.id, les.name, les.type, les.lab_group, les.teacher, "
+                     "       les.place, les.id_place, les.repit, les.date_end, les.time, "
+                     "       user.id, user.stage, user.cache "
+                     "FROM lesson AS les, user "
+                     "WHERE (les.user_id = user.id) AND ((les.user_id = ?) AND (les.date = ?));"
+       << id_user << date_YYMMDD >> [&vector__result, date_YYMMDD](
+            uint   les__id,
+            string les__name,
+            uint   les__type,
+            string les__lab_group,
+            string les__teacher,
+            string les__place,
+            uint   les__id_place,
+            uint   les__repit,
+            uint   les__date_end,
+            uint   les__time,
+
+            uint user__id,
+            string user__stage,
+            string user__cache
+       ) {
+            json json__result;
+
+            json__result["lesson"] = json();
+            json__result["user"]   = json();
+
+            json__result["lesson"]["date"]       = date_YYMMDD;
+            json__result["lesson"]["time"]       = les__time;
+            json__result["lesson"]["name"]       = les__name;
+            json__result["lesson"]["type"]       = les__type;
+            json__result["lesson"]["lab_group"]  = les__lab_group;
+            json__result["lesson"]["teacher"]    = les__teacher;
+            json__result["lesson"]["place"]      = les__place;
+            json__result["lesson"]["id_place"]   = les__id_place;
+            json__result["lesson"]["repit"]      = les__repit;
+            json__result["lesson"]["date_end"]   = les__date_end;
+            json__result["lesson"]["id"]         = les__id;
+
+            json__result["user"]["id"]    = user__id;
+            json__result["user"]["stage"] = user__stage;
+            json__result["user"]["cache"] = user__cache;
+
+
+            vector__result.push_back(json__result);
+       };
+
+
+    return vector__result;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+vector<json> data_base::get_lesson__user(uint id_user, uint date_YYMMDD, uint time) {
+    vector<json> vector__result;
+    
+    // Делаем запрос информации о текущих занятиях.
+    // Обрабатываем их в лямбде (как цикл).
+    data_base::db << "SELECT les.id, les.name, les.type, les.lab_group, les.teacher, "
+                     "       les.place, les.id_place, les.repit, les.date_end, les.time, "
+                     "       user.id, user.stage, user.cache "
+                     "FROM lesson AS les, user "
+                     "WHERE (les.user_id = user.id) AND ((les.user_id = ? ) AND (les.date = ? ) AND (les.time = ? )) ;"
+       << id_user << date_YYMMDD << time >> [&vector__result, date_YYMMDD](
+            uint   les__id,
+            string les__name,
+            uint   les__type,
+            string les__lab_group,
+            string les__teacher,
+            string les__place,
+            uint   les__id_place,
+            uint   les__repit,
+            uint   les__date_end,
+            uint   les__time,
+
+            uint user__id,
+            string user__stage,
+            string user__cache
+       ) {
+            json json__result;
+
+            json__result["lesson"] = json();
+            json__result["user"]   = json();
+
+            json__result["lesson"]["date"]       = date_YYMMDD;
+            json__result["lesson"]["time"]       = les__time;
+            json__result["lesson"]["name"]       = les__name;
+            json__result["lesson"]["type"]       = les__type;
+            json__result["lesson"]["lab_group"]  = les__lab_group;
+            json__result["lesson"]["teacher"]    = les__teacher;
+            json__result["lesson"]["place"]      = les__place;
+            json__result["lesson"]["id_place"]   = les__id_place;
+            json__result["lesson"]["repit"]      = les__repit;
+            json__result["lesson"]["date_end"]   = les__date_end;
+            json__result["lesson"]["id"]         = les__id;
+
+            json__result["user"]["id"]    = user__id;
+            json__result["user"]["stage"] = user__stage;
+            json__result["user"]["cache"] = user__cache;
+
+
+            vector__result.push_back(json__result);
+       };
+
+
+    return vector__result;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
 vector<json> data_base::get_cur_less(uint number_lesson, uint date_YYMMDD) {
     vector<json> vector__result;
     
     // Делаем запрос информации о текущих занятиях.
     // Обрабатываем их в лямбде (как цикл).
-    // Также, обновляем в БД поле date, если пара еще будет (см на поле date_end),
-    // иначе строка удаляется.
     data_base::db << "SELECT les.id, les.name, les.type, les.lab_group, les.teacher, "
                      "       les.place, les.id_place, les.repit, les.date_end, "
                      "       user.id, user.stage, user.cache "

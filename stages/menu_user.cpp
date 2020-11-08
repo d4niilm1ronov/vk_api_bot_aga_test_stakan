@@ -26,9 +26,53 @@ using json = nlohmann::json;
 
 #include "../stage.hpp"
 
+#include "../date.hpp"
+
 /* ////////////////////////////////////////////////////////////////////////
 
-
+{
+    "text":"Выберите пункт меню:1) Занятие сейчас\n2) Занятия сегодня\n3) Занятия завтра\n\n0) Отписаться от расписания",
+    "keyboard":{
+        "buttons":[
+            [
+                {
+                    "action":{
+                        "type":"text",
+                        "label":"Сейчас",
+                        "payload":"1"
+                    },
+                    "color":"primary"
+                },
+                {
+                    "action":{
+                        "type":"text",
+                        "label":"Сегодня",
+                        "payload":"2"
+                    },
+                    "color":"primary"
+                },
+                {
+                    "action":{
+                        "type":"text",
+                        "label":"Завтра",
+                        "payload":"3"
+                    },
+                    "color":"primary"
+                }
+            ],
+            [
+                {
+                    "action":{
+                        "type":"text",
+                        "label":"Отписаться от расписания",
+                        "payload":"20545"
+                    },
+                    "color":"secondary"
+                }
+            ]
+        ]
+    }
+}
 
 */ ////////////////////////////////////////////////////////////////////////
 
@@ -37,7 +81,7 @@ void stage :: menu_user (const json& message) {
     //  1. ["menu"] (string)
     //
     // Добавляется
-    //  1. ["menu"] = "guest"
+    //  1. ["menu"] = "user"
 
     const string current_stage = "menu_user";
 
@@ -68,13 +112,19 @@ void stage :: menu_user (const json& message) {
 
         // Если была нажата кнопка
         if (message.count("payload")) {
-            if (message["payload"] == "1") { next_stage = "menu_guest"; }
+            if (message["payload"] == "1") { next_stage = "print_current_lesson__menu_user"; } else
+            if (message["payload"] == "2") { next_stage = "print_today_lesson__menu_user"; } else
+            if (message["payload"] == "3") { next_stage = "print_tomorrow_lesson__menu_user"; } else
+            if (message["payload"] == "20545") { next_stage = "menu_guest"; }
         }
         
 
         // Если был введен текст
         else {
-            if (message["text"] == "1") { next_stage = "menu_guest"; }
+            if (message["text"] == "1") { next_stage = "print_current_lesson__menu_user"; } else
+            if (message["text"] == "2") { next_stage = "print_today_lesson__menu_user"; }   else
+            if (message["text"] == "3") { next_stage = "print_tomorrow_lesson__menu_user"; } else
+            if (message["text"] == "0") { next_stage = "menu_guest"; }
         }
 
 
@@ -88,6 +138,61 @@ void stage :: menu_user (const json& message) {
 
 
         data_base::set_user_cache(peer_id, user_cache);
+
+
+        if (next_stage == "print_current_lesson__menu_user") {
+
+            vector<json> vector__lesson_user = data_base::get_lesson__user (
+                peer_id,
+                time_stakan::get_current_date().format_yymmdd(),
+                time_stakan::get_current_number_lesson()
+            );
+            
+            if (vector__lesson_user.size()) { easy::vkapi::messages_send(string("Занятие сейчас 👇"    ), peer_id); }
+            else                            { easy::vkapi::messages_send(string("Сейчас нет занятия 🤷‍♀️"), peer_id); }
+
+            // Цикл по всем записям 
+            for (auto iter: vector__lesson_user) {
+                string text;
+
+                text += string(iter["lesson"]["name"]) + " ";
+
+                if (iter["lesson"]["type"] == 1) { text += string("[Лекция]\n"); }  else
+                if (iter["lesson"]["type"] == 2) { text += string("[Семинар]\n"); } else
+                if (iter["lesson"]["type"] == 3) { text += string("[Лабораторная]\n"); }
+
+                // if (iter["lesson"]["time"] == 1) { text += string("Время: 08:30 - 10:10"); } else
+                // if (iter["lesson"]["time"] == 2) { text += string("Время: 10:20 - 12:00"); } else
+                // if (iter["lesson"]["time"] == 3) { text += string("Время: 12:20 - 14:00"); } else
+                // if (iter["lesson"]["time"] == 4) { text += string("Время: 14:10 - 15:50"); } else
+                // if (iter["lesson"]["time"] == 5) { text += string("Время: 16:00 - 17:40"); } else
+                // if (iter["lesson"]["time"] == 6) { text += string("Время: 18:00 - 19:30"); } else
+                // if (iter["lesson"]["time"] == 7) { text += string("Время: 19:40 - 21:10"); }
+                // else                             { text += string("Время: 21:20 - 22:50"); }
+
+                if (iter["lesson"]["time"] == 1) { text += string("Время: до 10:10"); } else
+                if (iter["lesson"]["time"] == 2) { text += string("Время: до 12:00"); } else
+                if (iter["lesson"]["time"] == 3) { text += string("Время: до 14:00"); } else
+                if (iter["lesson"]["time"] == 4) { text += string("Время: до 15:50"); } else
+                if (iter["lesson"]["time"] == 5) { text += string("Время: до 17:40"); } else
+                if (iter["lesson"]["time"] == 6) { text += string("Время: до 19:30"); } else
+                if (iter["lesson"]["time"] == 7) { text += string("Время: до 21:10"); }
+                else                             { text += string("Время: до 22:50"); }
+
+                if ( iter["lesson"]["place"] != "null")
+                    { text += string("\nАудитория: ") + string(iter["lesson"]["place"]); }
+
+                if ( iter["lesson"]["teacher"] != "null")
+                    { text += string("\nПреподаватель: ") + string(iter["lesson"]["teacher"]); }
+
+                if ( iter["lesson"]["lab_group"] != "null")
+                    { text += string("\nПодгруппа: ") + string(iter["lesson"]["lab_group"]); }
+                
+
+                easy::vkapi::messages_send(text, peer_id);
+            }
+
+        } else
 
         if (next_stage != current_stage) { stage::function[next_stage](message); }
 
