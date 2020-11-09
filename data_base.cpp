@@ -254,87 +254,38 @@ void data_base::set_user_stage(const uint& user_id, const string& stage) {
 //---------------------------------------------------------------------------
 
 void data_base::add_lesson(const uint& user_id, const uint& id_group, const uint id_lab_group) {
-    // Массив с названиями подгрупп для лабораторных занятий
-    json json_arr__name_lab_group;
-
-    // Получаем этот^ массив
-    string string__json_arr__name_lab_group;
-    data_base::db << "SELECT lab_group "
-                         "FROM group_stankin "
-                         "WHERE (institute = ?) AND "
-                         "      (year = ?)      AND "
-                         "      (num = ?);       "
-        << (id_group / 10000) << ((id_group % 10000) / 100) << (id_group % 100)
-        >> string__json_arr__name_lab_group;
-
-    json_arr__name_lab_group = json::parse(string__json_arr__name_lab_group);
-
-    // Получаем название подгруппы
-    string name_lab_group = string(json_arr__name_lab_group[id_lab_group - 1]);
-
-
     // Добавляем пары с 'lesson_stankin.id_lab_group = id_lab_group' (лабы определенной подгруппы)
-    data_base::db << "INSERT INTO lesson ("
-                         "  time,"
-                         "  date,"
-                         "  name,"
-                         "  type,"
-                         "  teacher,"
-                         "  place,"
-                         "  id_place,"
-                         "  repit,"
-                         "  date_end,"
-                         "  lab_group,"
-                         "  user_id"
-                         ") "
-                         "SELECT lesson_stankin.time,"
-                         "       lesson_stankin.date,"
-                         "       lesson_stankin.name,"
-                         "       lesson_stankin.type,"
-                         "       lesson_stankin.teacher,"
-                         "       lesson_stankin.place,"
-                         "       lesson_stankin.id_place,"
-                         "       lesson_stankin.repit,"
-                         "       lesson_stankin.date_end,"
-                         "       ?,"
-                         "       ? "
-                         "FROM lesson_stankin "
-                         "WHERE (lesson_stankin.id_group = ?) AND (lesson_stankin.id_lab_group = ?); "
-                  << name_lab_group
-                  << user_id
-                  << id_group
-                  << id_lab_group;
-
-
-    // Добавляем пары с 'lesson_stankin.id_lab_group = 0' (лекции и семинары)
-    data_base::db << "INSERT INTO lesson ("
-                     "  time,"
-                     "  date,"
-                     "  name,"
-                     "  type,"
-                     "  teacher,"
-                     "  place,"
-                     "  id_place,"
-                     "  repit,"
-                     "  date_end,"
-                     "  lab_group,"
-                     "  user_id"
-                     ") "
-                     "SELECT lesson_stankin.time,"
-                     "       lesson_stankin.date,"
-                     "       lesson_stankin.name,"
-                     "       lesson_stankin.type,"
-                     "       lesson_stankin.teacher,"
-                     "       lesson_stankin.place,"
-                     "       lesson_stankin.id_place,"
-                     "       lesson_stankin.repit,"
-                     "       lesson_stankin.date_end,"
-                     "       'null',"
-                     "       ? "
-                     "FROM lesson_stankin "
-                     "WHERE (lesson_stankin.id_group = ?) AND (lesson_stankin.id_lab_group = 0); "
-                  << user_id
-                  << id_group;
+    data_base::db <<
+    "INSERT INTO lesson ("
+    "  time,"
+    "  date,"
+    "  name,"
+    "  type,"
+    "  teacher,"
+    "  place,"
+    "  id_place,"
+    "  repit,"
+    "  date_end,"
+    "  lab_group,"
+    "  user_id"
+    ") "
+    "SELECT lesson_stankin.time,"
+    "       lesson_stankin.date,"
+    "       lesson_stankin.name,"
+    "       lesson_stankin.type,"
+    "       lesson_stankin.teacher,"
+    "       lesson_stankin.place,"
+    "       lesson_stankin.id_place,"
+    "       lesson_stankin.repit,"
+    "       lesson_stankin.date_end,"
+    "       'null',"
+    "       ? "
+    "FROM lesson_stankin "
+    "WHERE (lesson_stankin.id_group = ?) AND ((lesson_stankin.id_lab_group = ?) OR (lesson_stankin.id_lab_group = 0)); "
+    
+    << user_id
+    << id_group
+    << id_lab_group;
 }
 
 //---------------------------------------------------------------------------
