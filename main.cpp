@@ -116,9 +116,9 @@ int main(int argc, char *argv[]) {
             time_stakan::date current_date = time_stakan::get_current_date();
 
             // Получаю в Вектор предыдущии занятия
-            auto vector__lesson_user = data_base::get_cur_less(
-                time_stakan::last_number_lesson ,
-                current_date.format_yymmdd()
+            auto vector__lesson_user = data_base::get_lesson(
+                current_date.format_yymmdd(),
+                time_stakan::last_number_lesson
             );
 
             // Цикл по всем записям занятий
@@ -221,9 +221,9 @@ int main(int argc, char *argv[]) {
             // Проверка на то, что это пара, а не конец учебного дня
             if ((time_stakan::last_number_lesson > 0) and (time_stakan::last_number_lesson < 9)) {
                 // Получаю в Вектор занятия, о которых нужно предупредить
-                auto vector__lesson_user = data_base::get_cur_less(
-                    time_stakan::last_number_lesson,
-                    time_stakan::get_current_date().format_yymmdd()
+                auto vector__lesson_user = data_base::get_lesson(
+                    time_stakan::get_current_date().format_yymmdd(),
+                    time_stakan::last_number_lesson
                 );
 
 
@@ -257,9 +257,9 @@ int main(int argc, char *argv[]) {
                     time_stakan::date current_date = time_stakan::get_current_date();
 
                     // Получаю в Вектор предыдущии занятия
-                    auto vector__lesson_user = data_base::get_cur_less(
-                        time_stakan::last_number_lesson - 1,
-                        current_date.format_yymmdd()
+                    auto vector__lesson_user = data_base::get_lesson(
+                        current_date.format_yymmdd(),
+                        time_stakan::last_number_lesson - 1
                     );
 
                     // Цикл по всем записям 

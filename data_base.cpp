@@ -138,7 +138,7 @@ vector<json> data_base::get_lesson__user(uint id_user, uint date_YYMMDD, uint ti
 
 /////////////////////////////////////////////////////////////////////////////
 
-vector<json> data_base::get_cur_less(uint number_lesson, uint date_YYMMDD) {
+vector<json> data_base::get_lesson(uint date_YYMMDD, uint time) {
     vector<json> vector__result;
     
     // Делаем запрос информации о текущих занятиях.
@@ -148,7 +148,7 @@ vector<json> data_base::get_cur_less(uint number_lesson, uint date_YYMMDD) {
                      "       user.id, user.stage, user.cache "
                      "FROM lesson AS les, user "
                      "WHERE (les.user_id = user.id) AND ((les.time = ?) AND (les.date = ?));"
-       << number_lesson << date_YYMMDD >> [&vector__result, date_YYMMDD, number_lesson](
+       << time << date_YYMMDD >> [&vector__result, date_YYMMDD, time](
             uint   les__id,
             string les__name,
             uint   les__type,
@@ -169,7 +169,7 @@ vector<json> data_base::get_cur_less(uint number_lesson, uint date_YYMMDD) {
             json__result["user"]   = json();
 
             json__result["lesson"]["date"]       = date_YYMMDD;
-            json__result["lesson"]["time"]       = number_lesson;
+            json__result["lesson"]["time"]       = time;
             json__result["lesson"]["name"]       = les__name;
             json__result["lesson"]["type"]       = les__type;
             json__result["lesson"]["lab_group"]  = les__lab_group;
