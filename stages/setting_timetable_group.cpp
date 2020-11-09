@@ -108,7 +108,13 @@ void stage :: setting_timetable_group (const json& message) {
                 }
 
                 str__institute_year_number += to_string(year);
-                str__institute_year_number += "-" + to_string(group);
+
+                // Добавляем нуль в название группы, чей порядковый номер меньше 10
+                // Например: из ИДБ-19-9 в ИДБ-19-09
+                if (group < 10) { str__institute_year_number += "-0"; }
+                else            { str__institute_year_number += "-";  }
+
+                str__institute_year_number += to_string(group);
             
 
                 // Вставляем в кэш
