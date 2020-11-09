@@ -100,7 +100,7 @@ int main(int argc, char *argv[]) {
         uint current_date__YYMMDD = time_stakan::get_current_date().format_yymmdd();
 
         // Удаление из lesson (таблица с занятиями, на которые подписаны пользователи)
-        data_base::db << "DELETE FROM lesson WHERE (date_end < ? ) OR ( (date <= ? ) AND (date_end = ? ) AND (time < ? ) ) ;"
+        data_base::db << "DELETE FROM lesson WHERE (date_end < ? ) OR ((date <= ? ) AND (date_end = ? ) AND (time < ? )) ;"
                       << current_date__YYMMDD << current_date__YYMMDD << current_date__YYMMDD
                       << time_stakan::get_current_number_lesson();
 
