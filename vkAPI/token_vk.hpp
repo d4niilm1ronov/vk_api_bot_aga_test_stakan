@@ -27,6 +27,8 @@ class vkapi::token_group : public vkapi::token_base {
         vkapi::bots_long_poll groups_getLongPollServer() const;
 
         token_group& operator=(const token_group&);
+
+        uint utils_getServerTime() const;
 };
 
 #endif

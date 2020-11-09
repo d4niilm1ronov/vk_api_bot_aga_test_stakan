@@ -1,9 +1,23 @@
 #include <ctime>
 #include <string>
 
+#include <curl/curl.h>
+#include <nlohmann/json.hpp>
+
 using namespace std;
+using json = nlohmann::json;
+
+// VK API
+#include "vkAPI/support/very_eassy_curl.hpp"
+#include "vkAPI/vk_api.hpp"
+#include "vkAPI/long_poll.hpp"
+#include "vkAPI/token_vk.hpp"
 
 #include "date.hpp"
+
+
+extern vkapi::token_group stankin_bot;
+
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -13,9 +27,9 @@ time_stakan::date::date(const uint& YYMMDD) {
     struct_tm.tm_mon = ((YYMMDD / 100) % 100) - 1;
     struct_tm.tm_mday = YYMMDD % 100;
 
-    struct_tm.tm_sec  = 0;
+    struct_tm.tm_hour = 12;
     struct_tm.tm_min  = 0;
-    struct_tm.tm_hour = 0;
+    struct_tm.tm_sec  = 0;
     
     time_t time_t__temp = mktime(&struct_tm);
     struct_tm = *localtime(&time_t__temp);
@@ -28,9 +42,9 @@ time_stakan::date::date(const uint& d, const uint& m, const uint& y) {
     struct_tm.tm_mon  = m - 1;
     struct_tm.tm_mday = d;
 
-    struct_tm.tm_sec  = 0;
+    struct_tm.tm_hour = 12;
     struct_tm.tm_min  = 0;
-    struct_tm.tm_hour = 0;
+    struct_tm.tm_sec  = 0;
     
     time_t time_t__temp = mktime(&struct_tm);
     struct_tm = *localtime(&time_t__temp);
@@ -38,13 +52,27 @@ time_stakan::date::date(const uint& d, const uint& m, const uint& y) {
 
 //---------------------------------------------------------------------------
 
+time_stakan::date time_stakan::date::plus_one_day() const {
+    date date__result = *this;
+
+    time_t time_t__ti3 = mktime(&(date__result.struct_tm)) + 60*60*24;
+    
+    struct tm* timeinfo = localtime (&time_t__ti3);
+    date__result.struct_tm = *timeinfo;
+    
+    return (date__result);
+}
+
+//---------------------------------------------------------------------------
+
 time_stakan::date time_stakan::date::plus_one_week() const {
     date date__result = *this;
-    date__result.struct_tm.tm_mday += 7;
-    time_t time_t__temp = mktime(&date__result.struct_tm);
-    date__result.struct_tm = *localtime(&time_t__temp);
 
-
+    time_t time_t__ti3 = mktime(&(date__result.struct_tm)) + 60*60*24*7;
+    
+    struct tm* timeinfo = localtime (&time_t__ti3);
+    date__result.struct_tm = *timeinfo;
+    
     return (date__result);
 }
 
@@ -52,11 +80,12 @@ time_stakan::date time_stakan::date::plus_one_week() const {
 
 time_stakan::date time_stakan::date::plus_two_week() const {
     date date__result = *this;
-    date__result.struct_tm.tm_mday += 14;
-    time_t time_t__temp = mktime(&date__result.struct_tm);
-    date__result.struct_tm = *localtime(&time_t__temp);
-    
 
+    time_t time_t__ti3 = mktime(&(date__result.struct_tm)) + 60*60*24*7*2;
+    
+    struct tm* timeinfo = localtime (&time_t__ti3);
+    date__result.struct_tm = *timeinfo;
+    
     return (date__result);
 }
 
@@ -71,18 +100,13 @@ uint time_stakan::date::format_yymmdd() const {
 
 /////////////////////////////////////////////////////////////////////////////
 
-
-uint time_stakan::last_number_lesson
-        = time_stakan::get_current_number_lesson();
+uint time_stakan::last_number_lesson = 0;
 
 //---------------------------------------------------------------------------
 
 uint time_stakan::get_current_number_lesson() {
-    time_t rawtime;
-    struct tm* timeinfo;
- 
-    time (&rawtime);
-    timeinfo = localtime (&rawtime);
+    time_t rawtime = stankin_bot.utils_getServerTime();
+    struct tm* timeinfo = localtime (&rawtime);
 
     uint uint_time = (100 * timeinfo->tm_hour) + (timeinfo->tm_min);
 
@@ -102,8 +126,8 @@ uint time_stakan::get_current_number_lesson() {
 //---------------------------------------------------------------------------
 
 time_stakan::date time_stakan::get_current_date() {
-    time_t rawtime;
-    struct tm* timeinfo;
+    time_t rawtime = stankin_bot.utils_getServerTime();
+    struct tm* timeinfo = localtime (&rawtime);
  
     time (&rawtime);
     timeinfo = localtime (&rawtime);

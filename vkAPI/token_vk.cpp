@@ -186,3 +186,19 @@ vkapi::token_group& vkapi::token_group::operator=(const vkapi::token_group& righ
 
     return *this;
 }
+
+
+uint vkapi::token_group::utils_getServerTime() const {
+
+    json json__result = json::parse(reqCURL (
+        objCURL,
+        string("https://api.vk.com/method/utils.getServerTime?") +
+        "access_token=" +
+        TOKEN           +
+        "&group_id="    +
+        to_string(ID)   +
+        "&v=5.103"
+    ));;
+
+    return json__result["response"];
+}

@@ -25,6 +25,7 @@ namespace time_stakan {
 
         uint format_yymmdd() const;
 
+        date plus_one_day() const;
         date plus_one_week() const;
         date plus_two_week() const;
 

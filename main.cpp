@@ -145,7 +145,8 @@ int main(int argc, char *argv[]) {
     
     }
     
-    
+    time_stakan::last_number_lesson = time_stakan::get_current_number_lesson();
+
     // Соединение для работы с Bots LongPoll VK API
     auto bots_longpoll__stankin_bot = stankin_bot.groups_getLongPollServer();
 
