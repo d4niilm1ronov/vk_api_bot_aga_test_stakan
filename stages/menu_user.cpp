@@ -229,6 +229,50 @@ void stage :: menu_user (const json& message) {
 
         } else
 
+        if (next_stage == "print_tomorrow_lesson__menu_user") {
+
+            vector<json> vector__lesson_user = data_base::get_lesson__user (
+                peer_id,
+                time_stakan::get_current_date() .plus_one_day() .format_yymmdd()
+            );
+            
+            if (vector__lesson_user.size()) { easy::vkapi::messages_send(string("Занятия завтра 👇"    ), peer_id); }
+            else                            { easy::vkapi::messages_send(string("На завтра нет занятий 🤷‍♀️"), peer_id); }
+
+            // Цикл по всем записям 
+            for (auto iter: vector__lesson_user) {
+                string text;
+
+                text += string(iter["lesson"]["name"]) + " ";
+
+                if (iter["lesson"]["type"] == 1) { text += string("[Лекция]\n"); }  else
+                if (iter["lesson"]["type"] == 2) { text += string("[Семинар]\n"); } else
+                if (iter["lesson"]["type"] == 3) { text += string("[Лабораторная]\n"); }
+
+                if (iter["lesson"]["time"] == 1) { text += string("Время: 08:30 - 10:10"); } else
+                if (iter["lesson"]["time"] == 2) { text += string("Время: 10:20 - 12:00"); } else
+                if (iter["lesson"]["time"] == 3) { text += string("Время: 12:20 - 14:00"); } else
+                if (iter["lesson"]["time"] == 4) { text += string("Время: 14:10 - 15:50"); } else
+                if (iter["lesson"]["time"] == 5) { text += string("Время: 16:00 - 17:40"); } else
+                if (iter["lesson"]["time"] == 6) { text += string("Время: 18:00 - 19:30"); } else
+                if (iter["lesson"]["time"] == 7) { text += string("Время: 19:40 - 21:10"); }
+                else                             { text += string("Время: 21:20 - 22:50"); }
+
+                if ( iter["lesson"]["place"] != "null")
+                    { text += string("\nАудитория: ") + string(iter["lesson"]["place"]); }
+
+                if ( iter["lesson"]["teacher"] != "null")
+                    { text += string("\nПреподаватель: ") + string(iter["lesson"]["teacher"]); }
+
+                if ( iter["lesson"]["lab_group"] != "null")
+                    { text += string("\nПодгруппа: ") + string(iter["lesson"]["lab_group"]); }
+                
+
+                easy::vkapi::messages_send(text, peer_id);
+            }
+
+        } else
+
         if (next_stage != current_stage) { stage::function[next_stage](message); }
 
         else { easy::vkapi::messages_send(string("Нет такого варианта ответа, выберите и напишите цифру из меню 👆"), peer_id); }
