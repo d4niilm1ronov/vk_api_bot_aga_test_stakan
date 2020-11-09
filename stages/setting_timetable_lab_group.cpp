@@ -136,16 +136,23 @@ void stage :: setting_timetable_lab_group (const json& message) {
                     + "\n" + to_string(i + 1) + ") " + string(arr_lab_group[i]);
         }
 
-        // Добавляем кнопку назад
-        final_message["keyboard"]["buttons"].push_back(final_message["keyboard"]["buttons"][1]);
 
         // Добавляем пункт "Все подгруппы"
         final_message["text"] = string(final_message["text"]) + "\n9) Все подгруппы";
 
+        // Делаем правильное положение кнопки "Все подгруппы"
+        final_message["keyboard"]["buttons"].push_back(final_message["keyboard"]["buttons"][2]);
+
+
         // Добавляем пункт назад
         final_message["text"] = string(final_message["text"]) + "\n0) Назад";
 
+        // Делаем правильное положение кнопки "Назад"
+        final_message["keyboard"]["buttons"].push_back(final_message["keyboard"]["buttons"][1]);
+
+
         // Удаляем шаблонные кнопки
+        final_message["keyboard"]["buttons"].erase(0);
         final_message["keyboard"]["buttons"].erase(0);
         final_message["keyboard"]["buttons"].erase(0);
 
