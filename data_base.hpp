@@ -53,10 +53,6 @@ namespace data_base {
 
 
     extern void remove_lesson(const uint& id);
-
-
-    extern void remove_lesson(const uint& id);
-
     
 };
 
