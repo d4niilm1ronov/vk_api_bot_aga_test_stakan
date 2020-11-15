@@ -24,7 +24,7 @@ sqlite::database data_base::db(":memory:");
 
 /////////////////////////////////////////////////////////////////////////////
 
-vector<json> data_base::get_lesson__user(uint id_user, uint date_YYMMDD) {
+vector<json> data_base::get_lesson__user(uint id_user, uint date_MMDD) {
     vector<json> vector__result;
     
     // Делаем запрос информации о текущих занятиях.
@@ -33,7 +33,7 @@ vector<json> data_base::get_lesson__user(uint id_user, uint date_YYMMDD) {
                      "       les.teacher, les.place, les.time "
                      "FROM lesson AS les "
                      "WHERE (les.user_id = ?) AND (les.date = ?);"
-       << id_user << date_YYMMDD >> [&vector__result](
+       << id_user << date_MMDD >> [&vector__result](
             uint   les__id,
             string les__name,
             uint   les__type,
@@ -62,7 +62,7 @@ vector<json> data_base::get_lesson__user(uint id_user, uint date_YYMMDD) {
 
 /////////////////////////////////////////////////////////////////////////////
 
-vector<json> data_base::get_lesson__user(uint id_user, uint date_YYMMDD, uint time) {
+vector<json> data_base::get_lesson__user(uint id_user, uint date_MMDD, uint time) {
     vector<json> vector__result;
     
     // Делаем запрос информации о текущих занятиях.
@@ -76,6 +76,7 @@ vector<json> data_base::get_lesson__user(uint id_user, uint date_YYMMDD, uint ti
             string les__name,
             uint   les__type,
             string les__lab_group,
+
             string les__teacher,
             string les__place,
             uint   les__time
@@ -83,12 +84,13 @@ vector<json> data_base::get_lesson__user(uint id_user, uint date_YYMMDD, uint ti
             json json__result;
 
             json__result["id"]         = les__id;
-            json__result["time"]       = les__time;
             json__result["name"]       = les__name;
             json__result["type"]       = les__type;
             json__result["lab_group"]  = les__lab_group;
+            
             json__result["teacher"]    = les__teacher;
             json__result["place"]      = les__place;
+            json__result["time"]       = les__time;
 
 
             vector__result.push_back(json__result);
@@ -100,7 +102,7 @@ vector<json> data_base::get_lesson__user(uint id_user, uint date_YYMMDD, uint ti
 
 /////////////////////////////////////////////////////////////////////////////
 
-vector<json> data_base::get_lesson(uint date_YYMMDD, uint time) {
+vector<json> data_base::get_lesson(uint date_MMDD, uint time) {
     vector<json> vector__result;
     
     // Делаем запрос информации о текущих занятиях.
@@ -110,7 +112,7 @@ vector<json> data_base::get_lesson(uint date_YYMMDD, uint time) {
                      "       user.id, user.stage, user.cache "
                      "FROM lesson AS les, user "
                      "WHERE (les.user_id = user.id) AND ((les.time = ?) AND (les.date = ?));"
-       << time << date_YYMMDD >> [&vector__result, date_YYMMDD, time](
+       << time << date_MMDD >> [&vector__result, time](
             uint   les__id,
             uint   les__date,
             string les__name,
