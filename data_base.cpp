@@ -70,8 +70,8 @@ vector<json> data_base::get_lesson__user(uint id_user, uint date_MMDD, uint time
     data_base::db << "SELECT les.id, les.name, les.type, les.lab_group, "
                      "       les.teacher, les.place, les.time "
                      "FROM lesson AS les "
-                     "WHERE (les.user_id = ? ) AND (les.date = ? ) AND (les.time = ? )) ;"
-       << id_user << date_YYMMDD << time >> [&vector__result](
+                     "WHERE ( les.user_id = ? ) AND ( les.date = ? ) AND ( les.time = ? );"
+       << id_user << date_MMDD << time >> [&vector__result](
             uint   les__id,
             string les__name,
             uint   les__type,
