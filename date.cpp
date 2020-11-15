@@ -22,10 +22,16 @@ extern vkapi::token_group stankin_bot;
 /////////////////////////////////////////////////////////////////////////////
 
 
-time_stakan::date::date(const uint& YYMMDD) {
-    struct_tm.tm_year = (YYMMDD / 10000) + 100;
-    struct_tm.tm_mon = ((YYMMDD / 100) % 100) - 1;
-    struct_tm.tm_mday = YYMMDD % 100;
+time_stakan::date::date(const uint& MMDD) {
+    struct_tm.tm_mon = ((MMDD / 100) % 100) - 1;
+    struct_tm.tm_mday = MMDD % 100;
+
+    {
+        time_t rawtime = stankin_bot.utils_getServerTime();
+        struct tm* timeinfo = localtime (&rawtime);
+        struct_tm.tm_year = timeinfo -> tm_year;
+    }
+    
 
     struct_tm.tm_hour = 12;
     struct_tm.tm_min  = 0;
@@ -37,10 +43,15 @@ time_stakan::date::date(const uint& YYMMDD) {
 
 //---------------------------------------------------------------------------
 
-time_stakan::date::date(const uint& d, const uint& m, const uint& y) {
-    struct_tm.tm_year = (y % 100) + 100;
+time_stakan::date::date(const uint& d, const uint& m) {
     struct_tm.tm_mon  = m - 1;
     struct_tm.tm_mday = d;
+
+    {
+        time_t rawtime = stankin_bot.utils_getServerTime();
+        struct tm* timeinfo = localtime (&rawtime);
+        struct_tm.tm_year = timeinfo -> tm_year;
+    }
 
     struct_tm.tm_hour = 12;
     struct_tm.tm_min  = 0;
@@ -91,9 +102,9 @@ time_stakan::date time_stakan::date::plus_two_week() const {
 
 //---------------------------------------------------------------------------
 
-uint time_stakan::date::format_yymmdd() const {
+uint time_stakan::date::format_mmdd() const {
 
-    return ((struct_tm.tm_year % 100) * 10000) + ((struct_tm.tm_mon + 1) * 100) + (struct_tm.tm_mday);
+    return ((struct_tm.tm_mon + 1) * 100) + (struct_tm.tm_mday);
 
 }
 
@@ -132,7 +143,7 @@ time_stakan::date time_stakan::get_current_date() {
     time (&rawtime);
     timeinfo = localtime (&rawtime);
 
-    return date(timeinfo -> tm_mday, timeinfo -> tm_mon + 1, timeinfo -> tm_year);
+    return date(timeinfo -> tm_mday, timeinfo -> tm_mon + 1);
 }
 
 //---------------------------------------------------------------------------

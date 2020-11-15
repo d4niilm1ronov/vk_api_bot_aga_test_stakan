@@ -13,17 +13,16 @@ namespace time_stakan {
 
         //-----------------------------------------------------------------
 
-        // YY [0-99] , MM [01-12] , DD [01-31]
-        date(const uint& YYMMDD);
+        // MM [01-12] , DD [01-31]
+        date(const uint& MMDD);
 
         // d: от 1 до 31 (день месяца)
         // m: от 1 до 12 (номер месяца)
-        // y: год (2014) или его последние 2 цифры (14)
-        date(const uint& d, const uint& m, const uint& y);
+        date(const uint& d, const uint& m);
 
         //-----------------------------------------------------------------
 
-        uint format_yymmdd() const;
+        uint format_mmdd() const;
 
         date plus_one_day() const;
         date plus_one_week() const;
