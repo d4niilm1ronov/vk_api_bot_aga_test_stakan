@@ -145,6 +145,7 @@ int main(int argc, char *argv[]) {
     
     }
     
+
     time_stakan::last_number_lesson = time_stakan::get_current_number_lesson();
 
     // Соединение для работы с Bots LongPoll VK API
@@ -222,7 +223,7 @@ int main(int argc, char *argv[]) {
             if ((time_stakan::last_number_lesson > 0) and (time_stakan::last_number_lesson < 9)) {
                 // Получаю в Вектор занятия, о которых нужно предупредить
                 auto vector__lesson_user = data_base::get_lesson(
-                    time_stakan::get_current_date().format_yymmdd(),
+                    time_stakan::get_current_date().format_mmdd(),
                     time_stakan::last_number_lesson
                 );
 
@@ -258,7 +259,7 @@ int main(int argc, char *argv[]) {
 
                     // Получаю в Вектор предыдущии занятия
                     auto vector__lesson_user = data_base::get_lesson(
-                        current_date.format_yymmdd(),
+                        current_date.format_mmdd(),
                         time_stakan::last_number_lesson - 1
                     );
 
@@ -266,7 +267,7 @@ int main(int argc, char *argv[]) {
                     for (auto iter: vector__lesson_user) {
 
                         // Если это последняя дата у занятия
-                        if (current_date.format_yymmdd() == iter["lesson"]["date_end"]) {
+                        if (current_date.format_mmdd() == iter["lesson"]["date_end"]) {
                             // Удаляем запись этого занятия
                             data_base::db << "DELETE FROM lesson WHERE id = ? ;"
                                             << uint(iter["lesson"]["id"]);
@@ -280,13 +281,13 @@ int main(int argc, char *argv[]) {
                             // Увеличиваем дату следующего занятия на 1-2 недели
                             if (iter["lesson"]["repit"] == 2) {
                                 data_base::db << "UPDATE lesson SET date = ? WHERE id = ? ;"
-                                              << current_date .plus_two_week() .format_yymmdd()
+                                              << current_date .plus_two_week() .format_mmdd()
                                               << uint(iter["lesson"]["id"]);
                             }
 
                             else {
                                 data_base::db << "UPDATE lesson SET date = ? WHERE id = ? ;"
-                                              << current_date .plus_one_week() .format_yymmdd()
+                                              << current_date .plus_one_week() .format_mmdd()
                                               << uint(iter["lesson"]["id"]);
                             }
                         }
