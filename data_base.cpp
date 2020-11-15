@@ -29,47 +29,28 @@ vector<json> data_base::get_lesson__user(uint id_user, uint date_YYMMDD) {
     
     // Делаем запрос информации о текущих занятиях.
     // Обрабатываем их в лямбде (как цикл).
-    data_base::db << "SELECT les.id, les.name, les.type, les.lab_group, les.teacher, "
-                     "       les.place, les.id_place, les.repit, les.date_end, les.time, "
-                     "       user.id, user.stage, user.cache "
-                     "FROM lesson AS les, user "
-                     "WHERE (les.user_id = user.id) AND ((les.user_id = ?) AND (les.date = ?));"
-       << id_user << date_YYMMDD >> [&vector__result, date_YYMMDD](
+    data_base::db << "SELECT les.id, les.name, les.type, les.lab_group, "
+                     "       les.teacher, les.place, les.time "
+                     "FROM lesson AS les "
+                     "WHERE (les.user_id = ?) AND (les.date = ?);"
+       << id_user << date_YYMMDD >> [&vector__result](
             uint   les__id,
             string les__name,
             uint   les__type,
             string les__lab_group,
             string les__teacher,
             string les__place,
-            uint   les__id_place,
-            uint   les__repit,
-            uint   les__date_end,
-            uint   les__time,
-
-            uint user__id,
-            string user__stage,
-            string user__cache
+            uint   les__time
        ) {
             json json__result;
 
-            json__result["lesson"] = json();
-            json__result["user"]   = json();
-
-            json__result["lesson"]["date"]       = date_YYMMDD;
-            json__result["lesson"]["time"]       = les__time;
-            json__result["lesson"]["name"]       = les__name;
-            json__result["lesson"]["type"]       = les__type;
-            json__result["lesson"]["lab_group"]  = les__lab_group;
-            json__result["lesson"]["teacher"]    = les__teacher;
-            json__result["lesson"]["place"]      = les__place;
-            json__result["lesson"]["id_place"]   = les__id_place;
-            json__result["lesson"]["repit"]      = les__repit;
-            json__result["lesson"]["date_end"]   = les__date_end;
-            json__result["lesson"]["id"]         = les__id;
-
-            json__result["user"]["id"]    = user__id;
-            json__result["user"]["stage"] = user__stage;
-            json__result["user"]["cache"] = user__cache;
+            json__result["id"]         = les__id;
+            json__result["time"]       = les__time;
+            json__result["name"]       = les__name;
+            json__result["type"]       = les__type;
+            json__result["lab_group"]  = les__lab_group;
+            json__result["teacher"]    = les__teacher;
+            json__result["place"]      = les__place;
 
 
             vector__result.push_back(json__result);
@@ -86,47 +67,28 @@ vector<json> data_base::get_lesson__user(uint id_user, uint date_YYMMDD, uint ti
     
     // Делаем запрос информации о текущих занятиях.
     // Обрабатываем их в лямбде (как цикл).
-    data_base::db << "SELECT les.id, les.name, les.type, les.lab_group, les.teacher, "
-                     "       les.place, les.id_place, les.repit, les.date_end, les.time, "
-                     "       user.id, user.stage, user.cache "
-                     "FROM lesson AS les, user "
-                     "WHERE (les.user_id = user.id) AND ((les.user_id = ? ) AND (les.date = ? ) AND (les.time = ? )) ;"
-       << id_user << date_YYMMDD << time >> [&vector__result, date_YYMMDD](
+    data_base::db << "SELECT les.id, les.name, les.type, les.lab_group, "
+                     "       les.teacher, les.place, les.time "
+                     "FROM lesson AS les "
+                     "WHERE (les.user_id = ? ) AND (les.date = ? ) AND (les.time = ? )) ;"
+       << id_user << date_YYMMDD << time >> [&vector__result](
             uint   les__id,
             string les__name,
             uint   les__type,
             string les__lab_group,
             string les__teacher,
             string les__place,
-            uint   les__id_place,
-            uint   les__repit,
-            uint   les__date_end,
-            uint   les__time,
-
-            uint user__id,
-            string user__stage,
-            string user__cache
+            uint   les__time
        ) {
             json json__result;
 
-            json__result["lesson"] = json();
-            json__result["user"]   = json();
-
-            json__result["lesson"]["date"]       = date_YYMMDD;
-            json__result["lesson"]["time"]       = les__time;
-            json__result["lesson"]["name"]       = les__name;
-            json__result["lesson"]["type"]       = les__type;
-            json__result["lesson"]["lab_group"]  = les__lab_group;
-            json__result["lesson"]["teacher"]    = les__teacher;
-            json__result["lesson"]["place"]      = les__place;
-            json__result["lesson"]["id_place"]   = les__id_place;
-            json__result["lesson"]["repit"]      = les__repit;
-            json__result["lesson"]["date_end"]   = les__date_end;
-            json__result["lesson"]["id"]         = les__id;
-
-            json__result["user"]["id"]    = user__id;
-            json__result["user"]["stage"] = user__stage;
-            json__result["user"]["cache"] = user__cache;
+            json__result["id"]         = les__id;
+            json__result["time"]       = les__time;
+            json__result["name"]       = les__name;
+            json__result["type"]       = les__type;
+            json__result["lab_group"]  = les__lab_group;
+            json__result["teacher"]    = les__teacher;
+            json__result["place"]      = les__place;
 
 
             vector__result.push_back(json__result);
@@ -144,20 +106,19 @@ vector<json> data_base::get_lesson(uint date_YYMMDD, uint time) {
     // Делаем запрос информации о текущих занятиях.
     // Обрабатываем их в лямбде (как цикл).
     data_base::db << "SELECT les.id, les.name, les.type, les.lab_group, les.teacher, "
-                     "       les.place, les.id_place, les.repit, les.date_end, "
+                     "       les.place, les.arr_date, les.date"
                      "       user.id, user.stage, user.cache "
                      "FROM lesson AS les, user "
                      "WHERE (les.user_id = user.id) AND ((les.time = ?) AND (les.date = ?));"
        << time << date_YYMMDD >> [&vector__result, date_YYMMDD, time](
             uint   les__id,
+            uint   les__date,
             string les__name,
             uint   les__type,
             string les__lab_group,
             string les__teacher,
             string les__place,
-            uint   les__id_place,
-            uint   les__repit,
-            uint   les__date_end,
+            string les__arr_date,
 
             uint user__id,
             string user__stage,
@@ -168,16 +129,14 @@ vector<json> data_base::get_lesson(uint date_YYMMDD, uint time) {
             json__result["lesson"] = json();
             json__result["user"]   = json();
 
-            json__result["lesson"]["date"]       = date_YYMMDD;
             json__result["lesson"]["time"]       = time;
+            json__result["lesson"]["date"]       = les__date;
             json__result["lesson"]["name"]       = les__name;
             json__result["lesson"]["type"]       = les__type;
             json__result["lesson"]["lab_group"]  = les__lab_group;
             json__result["lesson"]["teacher"]    = les__teacher;
             json__result["lesson"]["place"]      = les__place;
-            json__result["lesson"]["id_place"]   = les__id_place;
-            json__result["lesson"]["repit"]      = les__repit;
-            json__result["lesson"]["date_end"]   = les__date_end;
+            json__result["lesson"]["arr_date"]   = les__arr_date;
             json__result["lesson"]["id"]         = les__id;
 
             json__result["user"]["id"]    = user__id;
@@ -263,9 +222,8 @@ void data_base::add_lesson(const uint& user_id, const uint& id_group, const uint
     "  type,"
     "  teacher,"
     "  place,"
-    "  id_place,"
     "  repit,"
-    "  date_end,"
+    "  arr_date,"
     "  lab_group,"
     "  user_id"
     ") "
@@ -275,9 +233,8 @@ void data_base::add_lesson(const uint& user_id, const uint& id_group, const uint
     "       lesson_stankin.type,"
     "       lesson_stankin.teacher,"
     "       lesson_stankin.place,"
-    "       lesson_stankin.id_place,"
     "       lesson_stankin.repit,"
-    "       lesson_stankin.date_end,"
+    "       lesson_stankin.arr_date,"
     "       'null',"
     "       ? "
     "FROM lesson_stankin "
@@ -299,21 +256,18 @@ void data_base::add_lesson(const uint& user_id, const uint& id_group) {
                      "  type,"
                      "  teacher,"
                      "  place,"
-                     "  id_place,"
-                     "  repit,"
-                     "  date_end,"
+                     "  arr_date,"
                      "  lab_group,"
                      "  user_id"
                      ") "
-                     "SELECT lesson_stankin.time,"
+                     "SELECT"
+                     "       lesson_stankin.time,"
                      "       lesson_stankin.date,"
                      "       lesson_stankin.name,"
                      "       lesson_stankin.type,"
                      "       lesson_stankin.teacher,"
                      "       lesson_stankin.place,"
-                     "       lesson_stankin.id_place,"
-                     "       lesson_stankin.repit,"
-                     "       lesson_stankin.date_end,"
+                     "       lesson_stankin.arr_date,"
                      "       'null',"
                      "       ? "
                      "FROM lesson_stankin "
@@ -351,9 +305,7 @@ void data_base::add_lesson(const uint& user_id, const uint& id_group) {
                             "  type,"
                             "  teacher,"
                             "  place,"
-                            "  id_place,"
-                            "  repit,"
-                            "  date_end,"
+                            "  arr_date,"
                             "  lab_group,"
                             "  user_id"
                             ") "
@@ -363,9 +315,7 @@ void data_base::add_lesson(const uint& user_id, const uint& id_group) {
                             "       lesson_stankin.type,"
                             "       lesson_stankin.teacher,"
                             "       lesson_stankin.place,"
-                            "       lesson_stankin.id_place,"
-                            "       lesson_stankin.repit,"
-                            "       lesson_stankin.date_end,"
+                            "       lesson_stankin.arr_date,"
                             "       ?,"
                             "       ? "
                             "FROM lesson_stankin "
