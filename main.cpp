@@ -95,54 +95,17 @@ int main(int argc, char *argv[]) {
     }
 
 
-    // Удаление/Обновление записей прошедших занятий из таблиц «lesson» и «lesson_stankin»
+    // Обновление записей прошедших занятий из таблицы «lesson»
     {
-        uint current_date__YYMMDD = time_stakan::get_current_date().format_yymmdd();
+        // Здесь обновляются/удаляются записи занятий из таблицы «lesson»,
+        // которые были до текущего Времени (и Даты включительно)
+    }
 
-        // Удаление из lesson (таблица с занятиями, на которые подписаны пользователи)
-        data_base::db << "DELETE FROM lesson WHERE (date_end < ? ) OR ((date <= ? ) AND (date_end = ? ) AND (time < ? )) ;"
-                      << current_date__YYMMDD << current_date__YYMMDD << current_date__YYMMDD
-                      << time_stakan::get_current_number_lesson();
 
-        // Удаление из lesson_stankin (таблица с занятиями из расписания, на которые могут подписаться пользователи)
-        data_base::db << "DELETE FROM lesson_stankin WHERE (date_end < ? ) OR ( (date <= ? ) AND (date_end = ? ) AND (time < ? ) ) ;"
-                      << current_date__YYMMDD << current_date__YYMMDD << current_date__YYMMDD
-                      << time_stakan::get_current_number_lesson();
-
-        // Обновление записей занятий, которые еще не закончились
-        if (time_stakan::last_number_lesson != 0) {
-
-            // Дата которая сейчас (в типе time_stakan::date)
-            time_stakan::date current_date = time_stakan::get_current_date();
-
-            // Получаю в Вектор предыдущии занятия
-            auto vector__lesson_user = data_base::get_lesson(
-                current_date.format_yymmdd(),
-                time_stakan::last_number_lesson
-            );
-
-            // Цикл по всем записям занятий
-            for (auto iter: vector__lesson_user) {
-
-                uint date_YYMMDD         = iter["lesson"]["date"];
-                uint current_date_YYMMDD = current_date.format_yymmdd();
-
-                while (current_date_YYMMDD > date_YYMMDD) {
-                    if (iter["lesson"]["repit"] == 1) {
-                        date_YYMMDD = time_stakan::date(date_YYMMDD) .plus_one_week() .format_yymmdd();
-                    } else {
-                        date_YYMMDD = time_stakan::date(date_YYMMDD) .plus_two_week() .format_yymmdd();
-                    }
-                }
-
-                // Изменяем дату в БД
-                data_base::db << "UPDATE lesson SET date = ? WHERE id = ? ;"
-                              << date_YYMMDD
-                              << uint(iter["lesson"]["id"]);
-
-            }
-        }
-    
+    // Обновление записей прошедших занятий из таблицы «lesson_stankin»
+    {
+        // Здесь обновляются/удаляются записи занятий из таблицы «lesson_stankin»,
+        // которые были до текущей даты
     }
     
 
