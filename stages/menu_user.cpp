@@ -144,7 +144,7 @@ void stage :: menu_user (const json& message) {
 
             vector<json> vector__lesson_user = data_base::get_lesson__user (
                 peer_id,
-                time_stakan::get_current_date().format_yymmdd(),
+                time_stakan::get_current_date().format_mmdd(),
                 time_stakan::get_current_number_lesson()
             );
             
@@ -189,7 +189,7 @@ void stage :: menu_user (const json& message) {
 
             vector<json> vector__lesson_user = data_base::get_lesson__user (
                 peer_id,
-                time_stakan::get_current_date().format_yymmdd()
+                time_stakan::get_current_date().format_mmdd()
             );
             
             if (vector__lesson_user.size()) { easy::vkapi::messages_send(string("Занятия сегодня 👇"    ), peer_id); }
@@ -233,7 +233,7 @@ void stage :: menu_user (const json& message) {
 
             vector<json> vector__lesson_user = data_base::get_lesson__user (
                 peer_id,
-                time_stakan::get_current_date() .plus_one_day() .format_yymmdd()
+                time_stakan::get_current_date() .plus_one_day() .format_mmdd()
             );
             
             if (vector__lesson_user.size()) { easy::vkapi::messages_send(string("Занятия завтра 👇"    ), peer_id); }
