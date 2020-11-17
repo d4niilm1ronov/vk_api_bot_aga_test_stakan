@@ -50,7 +50,6 @@ void data_base::update_lesson(uint id) {
 
     // Обрабатываем arr_date
     while (arr_date.size()) {
-        cout << arr_date[0] << endl;
         
         // Если вверхняя дата – конечная
         if (arr_date[0] < 9999) {
