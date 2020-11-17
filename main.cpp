@@ -94,22 +94,28 @@ int main(int argc, char *argv[]) {
 
     }
 
+    time_stakan::last_number_lesson = time_stakan::get_current_number_lesson();
 
     // Обновление записей прошедших занятий из таблицы «lesson»
     {
-        // Здесь обновляются/удаляются записи занятий из таблицы «lesson»,
-        // которые были до текущего Времени (и Даты включительно)
-    }
+        vector<uint> vec__lesson_id;
+        uint date_current = time_stakan::get_current_date().format_mmdd();
 
+        cout << time_stakan::last_number_lesson << date_current << endl; 
 
-    // Обновление записей прошедших занятий из таблицы «lesson_stankin»
-    {
-        // Здесь обновляются/удаляются записи занятий из таблицы «lesson_stankin»,
-        // которые были до текущей даты
+        data_base::db << "SELECT id FROM lesson WHERE (date < ? ) OR ((time < ? ) AND (date = ? ));"
+        << date_current << time_stakan::last_number_lesson << date_current >> [&vec__lesson_id](unsigned int id) {
+            vec__lesson_id.push_back(id);
+        };
+
+        data_base::db << "SELECT id FROM lesson_stankin WHERE (date < ? );"
+        << date_current >> [&vec__lesson_id](unsigned int id) {
+            vec__lesson_id.push_back(id);
+        };
+
+        for (auto id: vec__lesson_id) { data_base::update_lesson(id); }
     }
     
-
-    time_stakan::last_number_lesson = time_stakan::get_current_number_lesson();
 
     // Соединение для работы с Bots LongPoll VK API
     auto bots_longpoll__stankin_bot = stankin_bot.groups_getLongPollServer();
