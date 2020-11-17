@@ -101,8 +101,6 @@ int main(int argc, char *argv[]) {
         vector<uint> vec__lesson_id;
         uint date_current = time_stakan::get_current_date().format_mmdd();
 
-        cout << time_stakan::last_number_lesson << date_current << endl; 
-
         data_base::db << "SELECT id FROM lesson WHERE (date < ? ) OR ((time < ? ) AND (date = ? ));"
         << date_current << time_stakan::last_number_lesson << date_current >> [&vec__lesson_id](unsigned int id) {
             vec__lesson_id.push_back(id);
@@ -220,48 +218,18 @@ int main(int argc, char *argv[]) {
                 }
 
 
-                // Удаление/Обновление записей прошлых занятий
+                // Удаление/Обновление записей прошлых занятий из lesson_user
                 if (time_stakan::last_number_lesson != 0) {
 
-                    // Дата которая сейчас (в типе time_stakan::date)
-                    time_stakan::date current_date = time_stakan::get_current_date();
+                    vector<uint> vec__lesson_id;
 
-                    // Получаю в Вектор предыдущии занятия
-                    auto vector__lesson_user = data_base::get_lesson(
-                        current_date.format_mmdd(),
-                        time_stakan::last_number_lesson - 1
-                    );
+                    data_base::db << "SELECT id FROM lesson WHERE (time = ? ) AND (date = ? );"
+                    << time_stakan::get_current_date().format_mmdd() << time_stakan::last_number_lesson
+                    >> [&vec__lesson_id](unsigned int id) {
+                        vec__lesson_id.push_back(id);
+                    };
 
-                    // Цикл по всем записям 
-                    for (auto iter: vector__lesson_user) {
-
-                        // Если это последняя дата у занятия
-                        if (current_date.format_mmdd() == iter["lesson"]["date_end"]) {
-                            // Удаляем запись этого занятия
-                            data_base::db << "DELETE FROM lesson WHERE id = ? ;"
-                                            << uint(iter["lesson"]["id"]);
-                        }
-
-                        // Если это НЕ последняя дата у занятия
-                        else {
-                            uint date_YYMMDD = iter["lesson"]["date"];
-                            time_stakan::date next_date(date_YYMMDD);
-
-                            // Увеличиваем дату следующего занятия на 1-2 недели
-                            if (iter["lesson"]["repit"] == 2) {
-                                data_base::db << "UPDATE lesson SET date = ? WHERE id = ? ;"
-                                              << current_date .plus_two_week() .format_mmdd()
-                                              << uint(iter["lesson"]["id"]);
-                            }
-
-                            else {
-                                data_base::db << "UPDATE lesson SET date = ? WHERE id = ? ;"
-                                              << current_date .plus_one_week() .format_mmdd()
-                                              << uint(iter["lesson"]["id"]);
-                            }
-                        }
-
-                    }
+                    for (auto id: vec__lesson_id) { data_base::update_lesson(id); }
                 }
             }
         }
