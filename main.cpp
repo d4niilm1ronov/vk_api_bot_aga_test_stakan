@@ -121,6 +121,8 @@ int main(int argc, char *argv[]) {
     // Ответ от VK API (по технологии LongPoll) в формате Json
     json json__answer_longpoll;
 
+    auto current_date = time_stakan::get_current_date();
+
 
     // Самый главный цикл 💪😎
     while(true) {
@@ -224,7 +226,7 @@ int main(int argc, char *argv[]) {
                     vector<uint> vec__lesson_id;
 
                     data_base::db << "SELECT id FROM lesson WHERE (time = ? ) AND (date = ? );"
-                    << time_stakan::get_current_date().format_mmdd() << time_stakan::last_number_lesson
+                    << current_date.format_mmdd() << time_stakan::last_number_lesson
                     >> [&vec__lesson_id](unsigned int id) {
                         vec__lesson_id.push_back(id);
                     };
@@ -234,6 +236,24 @@ int main(int argc, char *argv[]) {
             }
         }
 
+        // Если случился переход на другой день
+        if (current_date != time_stakan::get_current_date()) {
+
+            // Обновляем занятия с прошлого дня в lesson_stankin
+            {
+                vector<uint> vec__lesson_id;
+
+                data_base::db << "SELECT id FROM lesson_stankin WHERE (date = ? );" << current_date.format_mmdd()
+                >> [&vec__lesson_id](unsigned int id) {
+                    vec__lesson_id.push_back(id);
+                };
+
+                for (auto id: vec__lesson_id) { data_base::update_lesson(id); }
+            }
+
+            // Обновляем переменую с текущей датой
+            current_date = time_stakan::get_current_date();
+        }
 
         // Устанавливаем свежиий идентификатор сообытий 🛠
         bots_longpoll__stankin_bot.set_ts(stoi(std::string(json__answer_longpoll["ts"])));
