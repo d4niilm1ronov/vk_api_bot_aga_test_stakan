@@ -9,6 +9,8 @@ namespace data_base {
 
 //---------------------------------------------------------------------------
 
+    extern void update_lesson(uint id);
+
     extern vector<json> get_lesson__user(uint id_user, uint date_MMDD);
     extern vector<json> get_lesson__user(uint id_user, uint date_MMDD, uint time);
 

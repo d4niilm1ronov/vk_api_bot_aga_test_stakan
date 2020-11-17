@@ -18,9 +18,105 @@ using json = nlohmann::json;
 
 #include "data_base.hpp"
 
+#include "date.hpp"
+
 /////////////////////////////////////////////////////////////////////////////
 
 sqlite::database data_base::db(":memory:");
+
+/////////////////////////////////////////////////////////////////////////////
+
+void data_base::update_lesson(uint id) {
+    auto cur_date = time_stakan::get_current_date();
+
+    uint date = 0;
+
+    json arr_date;
+
+    // Определяем таблицу по ID записи
+    string name_db = (id > 2000000000 ? "lesson" : "lesson_stankin") ;
+    
+    // Получаем значения date и arr_date
+    data_base::db << "SELECT date, arr_date FROM " + name_db + " WHERE id = ? ;"
+    << id
+    >> [&date, &arr_date](uint d, string str_arr_d) {
+        cout << str_arr_d << endl;
+        date = d;
+        arr_date = json::parse(str_arr_d);
+
+    } ;
+
+    // Проверка на ID
+    if (date == 0) { cout << "[data_base::update_lesson] Записи с таким id не найдено" << endl; return; }
+
+    // Обрабатываем массив
+    while (arr_date.size()) {
+        
+        if (arr_date[0] < 9999) {
+
+            if (cur_date.format_mmdd() >= arr_date[0]) {
+
+                arr_date.erase(0); continue;
+
+            }
+
+            else {
+
+                date = arr_date[0];
+                break;
+
+            }
+        }
+        
+        else {
+
+            if ( cur_date.format_mmdd() >= ((uint(arr_date[0]) / 10000 ) % 10000) ) {
+
+                arr_date.erase(0); continue;
+
+            }
+
+            else {
+
+                auto increment_date = time_stakan::date( uint(arr_date[0]) % 10000 );
+
+                if ((uint(arr_date[0]) / 100000000) == 1) {
+
+                    while (increment_date <= cur_date) { increment_date.plus_one_week(); }
+                    
+                }
+
+                else {
+
+                    while (increment_date <= cur_date) { increment_date.plus_two_week(); }
+
+                }
+
+                date = increment_date.format_mmdd();
+
+                if (date == ((uint(arr_date[0]) / 10000 ) % 10000)) {
+                    
+                    arr_date[0] = date;
+                    
+                } else {
+                    
+                    arr_date[0] = ((uint(arr_date[0]) / 10000 ) * 10000) + date;
+                    
+                }
+
+            }
+
+        }
+
+    }
+
+    if ( arr_date.size() ) {
+        data_base::db << "UPDATE " + name_db + " SET date = ? , arr_date = ? WHERE id = ? ;"
+        << date << arr_date.dump(0) << id;
+    } else {
+        data_base::db << "DELETE FROM " + name_db + " WHERE id = ? ;" << id;
+    }
+}
 
 /////////////////////////////////////////////////////////////////////////////
 
