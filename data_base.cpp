@@ -40,7 +40,6 @@ void data_base::update_lesson(uint id) {
     data_base::db << "SELECT date, arr_date FROM " + name_db + " WHERE id = ? ;"
     << id
     >> [&date, &arr_date](uint d, string str_arr_d) {
-        cout << str_arr_d << endl;
         date = d;
         arr_date = json::parse(str_arr_d);
 
@@ -49,46 +48,54 @@ void data_base::update_lesson(uint id) {
     // Проверка на ID
     if (date == 0) { cout << "[data_base::update_lesson] Записи с таким id не найдено" << endl; return; }
 
-    // Обрабатываем массив
+    // Обрабатываем arr_date
     while (arr_date.size()) {
+        cout << arr_date[0] << endl;
         
+        // Если вверхняя дата – конечная
         if (arr_date[0] < 9999) {
 
+            // Если такая дата раньше или равно текущей
             if (cur_date.format_mmdd() >= arr_date[0]) {
-
+                // Удаляем ее и переходим к следующей
                 arr_date.erase(0); continue;
-
             }
 
+            // Если такая дата позже текущей
             else {
-
-                date = arr_date[0];
-                break;
-
+                // Дата для обновления найдена. Поиск остановлен.
+                date = arr_date[0]; break;
             }
         }
         
+        // Если вверхняя дата – зацикленная
         else {
 
+            // Если такая дата позже или равно текущей
             if ( cur_date.format_mmdd() >= ((uint(arr_date[0]) / 10000 ) % 10000) ) {
-
+                // Удаляем ее и переходим к следующей
                 arr_date.erase(0); continue;
-
             }
 
+             // Если такая дата позже текущей
             else {
 
+                
                 auto increment_date = time_stakan::date( uint(arr_date[0]) % 10000 );
 
                 if ((uint(arr_date[0]) / 100000000) == 1) {
 
-                    while (increment_date <= cur_date) { increment_date.plus_one_week(); }
+                    while (increment_date <= cur_date) {
+                        increment_date = increment_date.plus_one_week();
+                    }
                     
                 }
 
                 else {
 
-                    while (increment_date <= cur_date) { increment_date.plus_two_week(); }
+                    while (increment_date <= cur_date) {
+                        increment_date = increment_date.plus_two_week();
+                    }
 
                 }
 
@@ -103,6 +110,8 @@ void data_base::update_lesson(uint id) {
                     arr_date[0] = ((uint(arr_date[0]) / 10000 ) * 10000) + date;
                     
                 }
+
+                break;
 
             }
 
