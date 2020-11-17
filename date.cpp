@@ -147,3 +147,49 @@ time_stakan::date time_stakan::get_current_date() {
 }
 
 //---------------------------------------------------------------------------
+
+bool time_stakan::date::operator> (const time_stakan::date& right_date) const {
+
+    return this->format_mmdd() > right_date.format_mmdd();
+
+}
+
+//---------------------------------------------------------------------------
+
+bool time_stakan::date::operator>= (const time_stakan::date& right_date) const {
+
+    return this->format_mmdd() >= right_date.format_mmdd();
+
+}
+
+//---------------------------------------------------------------------------
+
+bool time_stakan::date::operator< (const time_stakan::date& right_date) const {
+
+    return this->format_mmdd() < right_date.format_mmdd();
+
+}
+
+//---------------------------------------------------------------------------
+
+bool time_stakan::date::operator<= (const time_stakan::date& right_date) const {
+
+    return this->format_mmdd() <= right_date.format_mmdd();
+
+}
+
+//---------------------------------------------------------------------------
+
+bool time_stakan::date::operator== (const time_stakan::date& right_date) const {
+
+    return this->format_mmdd() == right_date.format_mmdd();
+}
+
+//---------------------------------------------------------------------------
+
+bool time_stakan::date::operator!= (const time_stakan::date& right_date) const {
+
+    return this->format_mmdd() != right_date.format_mmdd();
+}
+
+//---------------------------------------------------------------------------

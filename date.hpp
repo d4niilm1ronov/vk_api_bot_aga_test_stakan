@@ -30,6 +30,15 @@ namespace time_stakan {
 
         //-----------------------------------------------------------------
 
+        bool operator> (const time_stakan::date&) const;
+        bool operator>= (const time_stakan::date&) const;
+        bool operator< (const time_stakan::date&) const;
+        bool operator<= (const time_stakan::date&) const;
+        bool operator== (const time_stakan::date&) const;
+        bool operator!= (const time_stakan::date&) const;
+
+        //-----------------------------------------------------------------
+
         explicit operator string() const {
 
             return(to_string(struct_tm.tm_mday) + "." + to_string(struct_tm.tm_mon + 1));
