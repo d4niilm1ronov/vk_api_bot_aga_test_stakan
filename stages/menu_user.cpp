@@ -155,29 +155,29 @@ void stage :: menu_user (const json& message) {
             for (auto iter: vector__lesson_user) {
                 string text;
 
-                text += string(iter["lesson"]["name"]) + " ";
+                text += string(iter["name"]) + " ";
 
-                if (iter["lesson"]["type"] == 1) { text += string("[Лекция]\n"); }  else
-                if (iter["lesson"]["type"] == 2) { text += string("[Семинар]\n"); } else
-                if (iter["lesson"]["type"] == 3) { text += string("[Лабораторная]\n"); }
+                if (iter["type"] == 1) { text += string("[Лекция]\n"); }  else
+                if (iter["type"] == 2) { text += string("[Семинар]\n"); } else
+                if (iter["type"] == 3) { text += string("[Лабораторная]\n"); }
 
-                if (iter["lesson"]["time"] == 1) { text += string("Время: до 10:10"); } else
-                if (iter["lesson"]["time"] == 2) { text += string("Время: до 12:00"); } else
-                if (iter["lesson"]["time"] == 3) { text += string("Время: до 14:00"); } else
-                if (iter["lesson"]["time"] == 4) { text += string("Время: до 15:50"); } else
-                if (iter["lesson"]["time"] == 5) { text += string("Время: до 17:40"); } else
-                if (iter["lesson"]["time"] == 6) { text += string("Время: до 19:30"); } else
-                if (iter["lesson"]["time"] == 7) { text += string("Время: до 21:10"); }
+                if (iter["time"] == 1) { text += string("Время: до 10:10"); } else
+                if (iter["time"] == 2) { text += string("Время: до 12:00"); } else
+                if (iter["time"] == 3) { text += string("Время: до 14:00"); } else
+                if (iter["time"] == 4) { text += string("Время: до 15:50"); } else
+                if (iter["time"] == 5) { text += string("Время: до 17:40"); } else
+                if (iter["time"] == 6) { text += string("Время: до 19:30"); } else
+                if (iter["time"] == 7) { text += string("Время: до 21:10"); }
                 else                             { text += string("Время: до 22:50"); }
 
-                if ( iter["lesson"]["place"] != "null")
-                    { text += string("\nАудитория: ") + string(iter["lesson"]["place"]); }
+                if ( iter["place"] != "null")
+                    { text += string("\nАудитория: ") + string(iter["place"]); }
 
-                if ( iter["lesson"]["teacher"] != "null")
-                    { text += string("\nПреподаватель: ") + string(iter["lesson"]["teacher"]); }
+                if ( iter["teacher"] != "null")
+                    { text += string("\nПреподаватель: ") + string(iter["teacher"]); }
 
-                if ( iter["lesson"]["lab_group"] != "null")
-                    { text += string("\nПодгруппа: ") + string(iter["lesson"]["lab_group"]); }
+                if ( iter["lab_group"] != "null")
+                    { text += string("\nПодгруппа: ") + string(iter["lab_group"]); }
                 
 
                 easy::vkapi::messages_send(text, peer_id);
@@ -199,29 +199,29 @@ void stage :: menu_user (const json& message) {
             for (auto iter: vector__lesson_user) {
                 string text;
 
-                text += string(iter["lesson"]["name"]) + " ";
+                text += string(iter["name"]) + " ";
 
-                if (iter["lesson"]["type"] == 1) { text += string("[Лекция]\n"); }  else
-                if (iter["lesson"]["type"] == 2) { text += string("[Семинар]\n"); } else
-                if (iter["lesson"]["type"] == 3) { text += string("[Лабораторная]\n"); }
+                if (iter["type"] == 1) { text += string("[Лекция]\n"); }  else
+                if (iter["type"] == 2) { text += string("[Семинар]\n"); } else
+                if (iter["type"] == 3) { text += string("[Лабораторная]\n"); }
 
-                if (iter["lesson"]["time"] == 1) { text += string("Время: 08:30 - 10:10"); } else
-                if (iter["lesson"]["time"] == 2) { text += string("Время: 10:20 - 12:00"); } else
-                if (iter["lesson"]["time"] == 3) { text += string("Время: 12:20 - 14:00"); } else
-                if (iter["lesson"]["time"] == 4) { text += string("Время: 14:10 - 15:50"); } else
-                if (iter["lesson"]["time"] == 5) { text += string("Время: 16:00 - 17:40"); } else
-                if (iter["lesson"]["time"] == 6) { text += string("Время: 18:00 - 19:30"); } else
-                if (iter["lesson"]["time"] == 7) { text += string("Время: 19:40 - 21:10"); }
+                if (iter["time"] == 1) { text += string("Время: 08:30 - 10:10"); } else
+                if (iter["time"] == 2) { text += string("Время: 10:20 - 12:00"); } else
+                if (iter["time"] == 3) { text += string("Время: 12:20 - 14:00"); } else
+                if (iter["time"] == 4) { text += string("Время: 14:10 - 15:50"); } else
+                if (iter["time"] == 5) { text += string("Время: 16:00 - 17:40"); } else
+                if (iter["time"] == 6) { text += string("Время: 18:00 - 19:30"); } else
+                if (iter["time"] == 7) { text += string("Время: 19:40 - 21:10"); }
                 else                             { text += string("Время: 21:20 - 22:50"); }
 
-                if ( iter["lesson"]["place"] != "null")
-                    { text += string("\nАудитория: ") + string(iter["lesson"]["place"]); }
+                if ( iter["place"] != "null")
+                    { text += string("\nАудитория: ") + string(iter["place"]); }
 
-                if ( iter["lesson"]["teacher"] != "null")
-                    { text += string("\nПреподаватель: ") + string(iter["lesson"]["teacher"]); }
+                if ( iter["teacher"] != "null")
+                    { text += string("\nПреподаватель: ") + string(iter["teacher"]); }
 
-                if ( iter["lesson"]["lab_group"] != "null")
-                    { text += string("\nПодгруппа: ") + string(iter["lesson"]["lab_group"]); }
+                if ( iter["lab_group"] != "null")
+                    { text += string("\nПодгруппа: ") + string(iter["lab_group"]); }
                 
 
                 easy::vkapi::messages_send(text, peer_id);
@@ -243,29 +243,29 @@ void stage :: menu_user (const json& message) {
             for (auto iter: vector__lesson_user) {
                 string text;
 
-                text += string(iter["lesson"]["name"]) + " ";
+                text += string(iter["name"]) + " ";
 
-                if (iter["lesson"]["type"] == 1) { text += string("[Лекция]\n"); }  else
-                if (iter["lesson"]["type"] == 2) { text += string("[Семинар]\n"); } else
-                if (iter["lesson"]["type"] == 3) { text += string("[Лабораторная]\n"); }
+                if (iter["type"] == 1) { text += string("[Лекция]\n"); }  else
+                if (iter["type"] == 2) { text += string("[Семинар]\n"); } else
+                if (iter["type"] == 3) { text += string("[Лабораторная]\n"); }
 
-                if (iter["lesson"]["time"] == 1) { text += string("Время: 08:30 - 10:10"); } else
-                if (iter["lesson"]["time"] == 2) { text += string("Время: 10:20 - 12:00"); } else
-                if (iter["lesson"]["time"] == 3) { text += string("Время: 12:20 - 14:00"); } else
-                if (iter["lesson"]["time"] == 4) { text += string("Время: 14:10 - 15:50"); } else
-                if (iter["lesson"]["time"] == 5) { text += string("Время: 16:00 - 17:40"); } else
-                if (iter["lesson"]["time"] == 6) { text += string("Время: 18:00 - 19:30"); } else
-                if (iter["lesson"]["time"] == 7) { text += string("Время: 19:40 - 21:10"); }
+                if (iter["time"] == 1) { text += string("Время: 08:30 - 10:10"); } else
+                if (iter["time"] == 2) { text += string("Время: 10:20 - 12:00"); } else
+                if (iter["time"] == 3) { text += string("Время: 12:20 - 14:00"); } else
+                if (iter["time"] == 4) { text += string("Время: 14:10 - 15:50"); } else
+                if (iter["time"] == 5) { text += string("Время: 16:00 - 17:40"); } else
+                if (iter["time"] == 6) { text += string("Время: 18:00 - 19:30"); } else
+                if (iter["time"] == 7) { text += string("Время: 19:40 - 21:10"); }
                 else                             { text += string("Время: 21:20 - 22:50"); }
 
-                if ( iter["lesson"]["place"] != "null")
-                    { text += string("\nАудитория: ") + string(iter["lesson"]["place"]); }
+                if ( iter["place"] != "null")
+                    { text += string("\nАудитория: ") + string(iter["place"]); }
 
-                if ( iter["lesson"]["teacher"] != "null")
-                    { text += string("\nПреподаватель: ") + string(iter["lesson"]["teacher"]); }
+                if ( iter["teacher"] != "null")
+                    { text += string("\nПреподаватель: ") + string(iter["teacher"]); }
 
-                if ( iter["lesson"]["lab_group"] != "null")
-                    { text += string("\nПодгруппа: ") + string(iter["lesson"]["lab_group"]); }
+                if ( iter["lab_group"] != "null")
+                    { text += string("\nПодгруппа: ") + string(iter["lab_group"]); }
                 
 
                 easy::vkapi::messages_send(text, peer_id);
