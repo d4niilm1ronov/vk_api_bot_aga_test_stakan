@@ -126,12 +126,6 @@ void stage :: menu_user (const json& message) {
         }
 
 
-        if (next_stage == "menu_guest") {
-            data_base::remove_lesson(peer_id);
-            easy::vkapi::messages_send(string("Вы отписались от расписания 😔"), peer_id);
-        }
-
-
         // --------------------------------------------------------------------
 
 
@@ -143,7 +137,7 @@ void stage :: menu_user (const json& message) {
             vector<json> vector__lesson_user = data_base::get_lesson__user (
                 peer_id,
                 time_stakan::get_current_date().format_mmdd(),
-                time_stakan::get_current_number_lesson()
+                time_stakan::last_number_lesson
             );
             
             if (vector__lesson_user.size()) { easy::vkapi::messages_send(string("Занятие сейчас 👇"    ), peer_id); }
@@ -269,6 +263,14 @@ void stage :: menu_user (const json& message) {
                 easy::vkapi::messages_send(text, peer_id);
             }
 
+        } else
+
+        if (next_stage == "menu_guest") {
+            data_base::remove_lesson(peer_id);
+            easy::vkapi::messages_send(string("Вы отписались от расписания 😔"), peer_id);
+
+            data_base::set_user_cache(peer_id, user_cache);
+            stage::function[next_stage](message);
         } else
 
         if (next_stage != current_stage) {
