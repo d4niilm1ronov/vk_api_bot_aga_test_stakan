@@ -93,11 +93,9 @@ void stage :: menu_user (const json& message) {
 
     // --------------------------------------------------------------------
 
-
+    // Если пользователь с прошлого stage попал на этот stage
     if (next_stage != current_stage) {
         if (user_cache.count("menu")) { user_cache.erase("menu"); }
-        
-        user_cache["menu"] = "user";
 
         data_base::set_user_cache(peer_id, user_cache);
         data_base::set_user_stage(peer_id, current_stage);
@@ -273,7 +271,12 @@ void stage :: menu_user (const json& message) {
 
         } else
 
-        if (next_stage != current_stage) { stage::function[next_stage](message); }
+        if (next_stage != current_stage) {
+            user_cache["menu"] = "user";
+
+            data_base::set_user_cache(peer_id, user_cache);
+            stage::function[next_stage](message);
+        }
 
         else { easy::vkapi::messages_send(string("Нет такого варианта ответа, выберите и напишите цифру из меню 👆"), peer_id); }
 

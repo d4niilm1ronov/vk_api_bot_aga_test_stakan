@@ -55,56 +55,54 @@ void stage :: menu_guest (const json& message) {
     // Добавляется
     //  1. ["menu"] = "guest"
 
-    const string current_stage = "menu_guest";
+    const string this_stage = "menu_guest";
 
     // Получение параметров отправителя сообщения
     uint   peer_id    = message["peer_id"];
-    string next_stage = data_base::get_user_stage(peer_id);
+    string user_stage = data_base::get_user_stage(peer_id);
     json   user_cache = data_base::get_user_cache(peer_id);
 
 
     // --------------------------------------------------------------------
 
-
-    if (next_stage != current_stage) {
-        if (user_cache.count("menu")) { user_cache.erase("menu"); }
+    // Если пользователь с прошлого stage попал на этот stage
+    if (user_stage != this_stage) {
+        if (user_cache.count("menu"))      { user_cache.erase("menu"); }
         if (user_cache.count("institute")) { user_cache.erase("institute"); }
 
-        user_cache["menu"] = "guest";
-
         data_base::set_user_cache(peer_id, user_cache);
-        data_base::set_user_stage(peer_id, current_stage);
-        easy::vkapi::messages_send(stage::message[current_stage], peer_id);
+        data_base::set_user_stage(peer_id, this_stage);
+        easy::vkapi::messages_send(stage::message[this_stage], peer_id);
     }
-
 
     // --------------------------------------------------------------------
 
-
+    // Если пользователь сделать действие (на этом stage)
     else {
 
-        // Если была нажата кнопка
+        // Обработка нажатия кнопки (через payload)
         if (message.count("payload")) {
-            if (message["payload"] == "1") { next_stage = "setting_timetable_institute"; }
+            if (message["payload"] == "1") { user_stage = "setting_timetable_institute"; }
         }
         
 
-        // Если был введен текст
+        // Обработка выбора пункта меню (через text сообщения)
         else {
-            if (message["text"] == "1") { next_stage = "setting_timetable_institute"; }
+            if (message["text"] == "1") { user_stage = "setting_timetable_institute"; }
         }
-
 
         // --------------------------------------------------------------------
 
+        // Если в результате действия пользователя было выполненно действие
+        if (user_stage != this_stage) {
 
-        data_base::set_user_cache(peer_id, user_cache);
+            user_cache["menu"] = "guest";
 
-        if (next_stage != current_stage) { stage::function[next_stage](message); }
+            data_base::set_user_cache(peer_id, user_cache);
+            stage::function[user_stage](message);
+        }
 
         else { easy::vkapi::messages_send(string("Нет такого варианта ответа, выберите и напишите цифру из меню 👆"), peer_id); }
-
-
     }
     
 

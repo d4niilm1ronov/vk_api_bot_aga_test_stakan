@@ -223,8 +223,9 @@ void stage :: setting_timetable_lab_group (const json& message) {
             user_cache.erase("institute");
             user_cache.erase("year");
             user_cache.erase("group");
+            user_cache.erase("lab_group");
+            user_cache.erase("menu");
 
-            user_cache["menu"] = "user";
             next_stage = "menu_user";
 
             easy::vkapi::messages_send(string("Расписание установлено! 🥳"), peer_id);
