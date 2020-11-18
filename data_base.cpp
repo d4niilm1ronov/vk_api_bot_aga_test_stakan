@@ -34,7 +34,7 @@ void data_base::update_lesson(uint id) {
     json arr_date;
 
     // Определяем таблицу по ID записи
-    string name_db = (id > 2000000000 ? "lesson" : "lesson_stankin") ;
+    string name_db = (id > 2000000000 ? "lesson_user" : "lesson_stankin") ;
     
     // Получаем значения date и arr_date
     data_base::db << "SELECT date, arr_date FROM " + name_db + " WHERE id = ? ;"
@@ -135,7 +135,7 @@ vector<json> data_base::get_lesson__user(uint id_user, uint date_MMDD) {
     // Обрабатываем их в лямбде (как цикл).
     data_base::db << "SELECT les.id, les.name, les.type, les.lab_group, "
                      "       les.teacher, les.place, les.time "
-                     "FROM lesson AS les "
+                     "FROM lesson_user AS les "
                      "WHERE (les.user_id = ?) AND (les.date = ?);"
        << id_user << date_MMDD >> [&vector__result](
             uint   les__id,
@@ -173,7 +173,7 @@ vector<json> data_base::get_lesson__user(uint id_user, uint date_MMDD, uint time
     // Обрабатываем их в лямбде (как цикл).
     data_base::db << "SELECT les.id, les.name, les.type, les.lab_group, "
                      "       les.teacher, les.place, les.time "
-                     "FROM lesson AS les "
+                     "FROM lesson_user AS les "
                      "WHERE ( les.user_id = ? ) AND ( les.date = ? ) AND ( les.time = ? );"
        << id_user << date_MMDD << time >> [&vector__result](
             uint   les__id,
@@ -214,7 +214,7 @@ vector<json> data_base::get_lesson(uint date_MMDD, uint time) {
     data_base::db << "SELECT les.id, les.name, les.type, les.lab_group, les.teacher, "
                      "       les.place, les.arr_date, les.date"
                      "       user.id, user.stage, user.cache "
-                     "FROM lesson AS les, user "
+                     "FROM lesson_user AS les, user "
                      "WHERE (les.user_id = user.id) AND ((les.time = ?) AND (les.date = ?));"
        << time << date_MMDD >> [&vector__result, time](
             uint   les__id,
@@ -321,7 +321,7 @@ void data_base::set_user_stage(const uint& user_id, const string& stage) {
 void data_base::add_lesson(const uint& user_id, const uint& id_group, const uint id_lab_group) {
     // Добавляем пары с 'lesson_stankin.id_lab_group = id_lab_group' (лабы определенной подгруппы)
     data_base::db <<
-    "INSERT INTO lesson ("
+    "INSERT INTO lesson_user ("
     "  time,"
     "  date,"
     "  name,"
@@ -353,7 +353,7 @@ void data_base::add_lesson(const uint& user_id, const uint& id_group, const uint
 
 void data_base::add_lesson(const uint& user_id, const uint& id_group) {
     // Добавляем пары с 'lesson_stankin.id_lab_group = 0' (лекции и семинары)
-    data_base::db << "INSERT INTO lesson ("
+    data_base::db << "INSERT INTO lesson_user ("
                      "  time,"
                      "  date,"
                      "  name,"
@@ -402,7 +402,7 @@ void data_base::add_lesson(const uint& user_id, const uint& id_group) {
         string name_lab_group = string(json_arr__name_lab_group[i]);
 
         // Добавляем пары с 'lesson_stankin.id_lab_group = id_lab_group' (лабы определенной подгруппы)
-        data_base::db << "INSERT INTO lesson ("
+        data_base::db << "INSERT INTO lesson_user ("
                             "  time,"
                             "  date,"
                             "  name,"
@@ -435,9 +435,9 @@ void data_base::add_lesson(const uint& user_id, const uint& id_group) {
 
 void data_base::remove_lesson(const uint& id) {
     if (id > 2000000000) {
-        data_base::db << "DELETE FROM lesson WHERE id = ? ;" << id;
+        data_base::db << "DELETE FROM lesson_user WHERE id = ? ;" << id;
     } else {
-        data_base::db << "DELETE FROM lesson WHERE user_id = ? ;" << id;
+        data_base::db << "DELETE FROM lesson_user WHERE user_id = ? ;" << id;
     }
 }
 

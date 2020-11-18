@@ -96,12 +96,12 @@ int main(int argc, char *argv[]) {
 
     time_stakan::last_number_lesson = time_stakan::get_current_number_lesson();
 
-    // Обновление записей прошедших занятий из таблицы «lesson»
+    // Обновление записей прошедших занятий из таблицы «lesson_user»
     {
         vector<uint> vec__lesson_id;
         uint date_current = time_stakan::get_current_date().format_mmdd();
 
-        data_base::db << "SELECT id FROM lesson WHERE (date < ? ) OR ((time < ? ) AND (date = ? ));"
+        data_base::db << "SELECT id FROM lesson_user WHERE (date < ? ) OR ((time < ? ) AND (date = ? ));"
         << date_current << time_stakan::last_number_lesson << date_current >> [&vec__lesson_id](unsigned int id) {
             vec__lesson_id.push_back(id);
         };
@@ -225,7 +225,7 @@ int main(int argc, char *argv[]) {
 
                     vector<uint> vec__lesson_id;
 
-                    data_base::db << "SELECT id FROM lesson WHERE (time = ? ) AND (date = ? );"
+                    data_base::db << "SELECT id FROM lesson_user WHERE (time = ? ) AND (date = ? );"
                     << current_date.format_mmdd() << time_stakan::last_number_lesson
                     >> [&vec__lesson_id](unsigned int id) {
                         vec__lesson_id.push_back(id);
