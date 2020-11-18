@@ -28,7 +28,7 @@ time_stakan::date::date(const uint& MMDD) {
 
     {
         time_t rawtime = stankin_bot.utils_getServerTime();
-        struct tm* timeinfo = localtime (&rawtime);
+        struct tm* timeinfo = gmtime(&rawtime);
         struct_tm.tm_year = timeinfo -> tm_year;
     }
     
@@ -38,7 +38,7 @@ time_stakan::date::date(const uint& MMDD) {
     struct_tm.tm_sec  = 0;
     
     time_t time_t__temp = mktime(&struct_tm);
-    struct_tm = *localtime(&time_t__temp);
+    struct_tm = *gmtime(&time_t__temp);
 }
 
 //---------------------------------------------------------------------------
@@ -49,7 +49,7 @@ time_stakan::date::date(const uint& d, const uint& m) {
 
     {
         time_t rawtime = stankin_bot.utils_getServerTime();
-        struct tm* timeinfo = localtime (&rawtime);
+        struct tm* timeinfo = gmtime(&rawtime);
         struct_tm.tm_year = timeinfo -> tm_year;
     }
 
@@ -58,7 +58,7 @@ time_stakan::date::date(const uint& d, const uint& m) {
     struct_tm.tm_sec  = 0;
     
     time_t time_t__temp = mktime(&struct_tm);
-    struct_tm = *localtime(&time_t__temp);
+    struct_tm = *gmtime(&time_t__temp);
 }
 
 //---------------------------------------------------------------------------
@@ -68,7 +68,7 @@ time_stakan::date time_stakan::date::plus_one_day() const {
 
     time_t time_t__ti3 = mktime(&(date__result.struct_tm)) + 60*60*24;
     
-    struct tm* timeinfo = localtime (&time_t__ti3);
+    struct tm* timeinfo = gmtime(&time_t__ti3);
     date__result.struct_tm = *timeinfo;
     
     return (date__result);
@@ -81,7 +81,7 @@ time_stakan::date time_stakan::date::plus_one_week() const {
 
     time_t time_t__ti3 = mktime(&(date__result.struct_tm)) + 60*60*24*7;
     
-    struct tm* timeinfo = localtime (&time_t__ti3);
+    struct tm* timeinfo = gmtime(&time_t__ti3);
     date__result.struct_tm = *timeinfo;
     
     return (date__result);
@@ -94,7 +94,7 @@ time_stakan::date time_stakan::date::plus_two_week() const {
 
     time_t time_t__ti3 = mktime(&(date__result.struct_tm)) + 60*60*24*7*2;
     
-    struct tm* timeinfo = localtime (&time_t__ti3);
+    struct tm* timeinfo = gmtime(&time_t__ti3);
     date__result.struct_tm = *timeinfo;
     
     return (date__result);
@@ -116,10 +116,10 @@ uint time_stakan::last_number_lesson = 0;
 //---------------------------------------------------------------------------
 
 uint time_stakan::get_current_number_lesson() {
-    time_t rawtime = stankin_bot.utils_getServerTime();
-    struct tm* timeinfo = localtime (&rawtime);
+    time_t rawtime = stankin_bot.utils_getServerTime() + 10800;
+    struct tm* timeinfo = gmtime(&rawtime);
 
-    uint uint_time = (100 * timeinfo->tm_hour) + (timeinfo->tm_min);
+    uint uint_time = (100 * (timeinfo->tm_hour)) + (timeinfo->tm_min);
 
     if (uint_time >= 800  & uint_time < 1010) { return 1; }
     if (uint_time >= 1010 & uint_time < 1200) { return 2; }
@@ -137,8 +137,8 @@ uint time_stakan::get_current_number_lesson() {
 //---------------------------------------------------------------------------
 
 time_stakan::date time_stakan::get_current_date() {
-    time_t rawtime = stankin_bot.utils_getServerTime();
-    struct tm* timeinfo = localtime (&rawtime);
+    time_t rawtime = stankin_bot.utils_getServerTime() + 10800;
+    struct tm* timeinfo = gmtime(&rawtime);
  
     time (&rawtime);
     timeinfo = localtime (&rawtime);
