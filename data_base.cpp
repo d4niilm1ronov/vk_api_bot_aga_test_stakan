@@ -212,21 +212,22 @@ vector<json> data_base::get_lesson(uint date_MMDD, uint time) {
     // Делаем запрос информации о текущих занятиях.
     // Обрабатываем их в лямбде (как цикл).
     data_base::db << "SELECT les.id, les.name, les.type, les.lab_group, les.teacher, "
-                     "       les.place, les.arr_date, les.date"
+                     "       les.place, les.arr_date, les.date, "
                      "       user.id, user.stage, user.cache "
                      "FROM lesson_user AS les, user "
-                     "WHERE (les.user_id = user.id) AND ((les.time = ?) AND (les.date = ?));"
+                     "WHERE (les.user_id = user.id) AND ((les.time = ? ) AND (les.date = ? ));"
        << time << date_MMDD >> [&vector__result, time](
             uint   les__id,
-            uint   les__date,
             string les__name,
             uint   les__type,
             string les__lab_group,
             string les__teacher,
+
             string les__place,
             string les__arr_date,
+            uint   les__date,
 
-            uint user__id,
+            uint   user__id,
             string user__stage,
             string user__cache
        ) {
