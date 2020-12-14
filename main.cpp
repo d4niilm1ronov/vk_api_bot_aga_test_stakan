@@ -123,6 +123,8 @@ int main(int argc, char *argv[]) {
 
     auto current_date = time_stakan::get_current_date();
 
+    // Рассылались ли уведомления об перерывах на текущей паре?
+    bool need_notiflication_break = false;
 
     // Самый главный цикл 💪😎
     while(true) {
@@ -182,6 +184,24 @@ int main(int argc, char *argv[]) {
             }
         }
 
+        // Рассылка уведомлений о перерыве
+        if (need_notiflication_break) {          // Если мы еще не отправляли уведомления о перерыве
+            
+            if ( time_stakan::time_to_break() ) {  // Если пришло время разослать уведомления о перерыве
+
+                uint current_date = time_stakan::get_current_date().format_mmdd();
+
+                data_base::db << "SELECT user.id "
+                                 "FROM lesson_user AS les, user "
+                                 "WHERE (les.user_id = user.id) AND ((les.time = ? ) AND (les.date = ? )) AND (user.setting_break = 1);"
+                << time_stakan::last_number_lesson << current_date >> [] ( uint   user__id ) {
+                    easy::vkapi::messages_send("Прошла половина занятия. Сейчас перерыв на 10 минут ⏰");
+                };
+
+                need_notiflication_break = false;
+            }           
+
+        }
 
         // Если началось время следующей пары (Рассылка уведомлений о занятий)
         if (time_stakan::last_number_lesson != time_stakan::get_current_number_lesson()) {
@@ -196,6 +216,9 @@ int main(int argc, char *argv[]) {
                     time_stakan::last_number_lesson
                 );
 
+                // Установка флага, означающий что нужно будет
+                // разослать уведомления об перерыве
+                need_notiflication_break = true;
 
                 // Рассылка сообщений об предстоящем занятии    
                 for (auto i: vector__lesson_user) {
@@ -234,6 +257,8 @@ int main(int argc, char *argv[]) {
                     for (auto id: vec__lesson_id) { data_base::update_lesson(id); }
                 }
             }
+
+
         }
 
         // Если случился переход на другой день
