@@ -136,7 +136,8 @@ vector<json> data_base::get_lesson__user(uint id_user, uint date_MMDD) {
     data_base::db << "SELECT les.id, les.name, les.type, les.lab_group, "
                      "       les.teacher, les.place, les.time "
                      "FROM lesson_user AS les "
-                     "WHERE (les.user_id = ?) AND (les.date = ?);"
+                     "WHERE (les.user_id = ? ) AND (les.date = ? ) "
+                     "ORDER BY les.time ASC;"
        << id_user << date_MMDD >> [&vector__result](
             uint   les__id,
             string les__name,
