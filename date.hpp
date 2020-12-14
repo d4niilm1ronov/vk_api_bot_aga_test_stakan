@@ -56,6 +56,8 @@ namespace time_stakan {
 
     date get_current_date();
 
+    bool time_to_break();
+
 };
 
 #endif

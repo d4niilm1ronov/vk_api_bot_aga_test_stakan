@@ -148,6 +148,26 @@ time_stakan::date time_stakan::get_current_date() {
 
 //---------------------------------------------------------------------------
 
+bool time_stakan::time_to_break() {
+    time_t rawtime = stankin_bot.utils_getServerTime() + 10800;
+    struct tm* timeinfo = gmtime(&rawtime);
+
+    uint uint_time = (100 * (timeinfo->tm_hour)) + (timeinfo->tm_min);
+
+    if (uint_time ==  915) { return true; }
+    if (uint_time == 1105) { return true; }
+    if (uint_time == 1305) { return true; }
+    if (uint_time == 1455) { return true; }
+    if (uint_time == 1645) { return true; }
+    if (uint_time == 1845) { return true; }
+    if (uint_time == 2025) { return true; }
+    if (uint_time == 2205) { return true; }
+
+    return false;
+}
+
+//---------------------------------------------------------------------------
+
 bool time_stakan::date::operator> (const time_stakan::date& right_date) const {
 
     return this->format_mmdd() > right_date.format_mmdd();
