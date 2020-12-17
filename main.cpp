@@ -92,6 +92,7 @@ int main(int argc, char *argv[]) {
         stage::function.insert({"setting_timetable_group", stage::setting_timetable_group});
         stage::function.insert({"setting_timetable_lab_group", stage::setting_timetable_lab_group});
 
+        stage::function.insert({"search_teacher_input", stage::search_teacher_input});
     }
 
     time_stakan::last_number_lesson = time_stakan::get_current_number_lesson();
@@ -124,7 +125,7 @@ int main(int argc, char *argv[]) {
     auto current_date = time_stakan::get_current_date();
 
     // Рассылались ли уведомления об перерывах на текущей паре?
-    bool need_notiflication_break = false;
+    bool need_notiflication_break = true;
 
     // Самый главный цикл 💪😎
     while(true) {
@@ -185,81 +186,85 @@ int main(int argc, char *argv[]) {
         }
 
         // Рассылка уведомлений о перерыве
-        if (need_notiflication_break) {          // Если мы еще не отправляли уведомления о перерыве
+        if (need_notiflication_break) {
+            // Если мы еще не отправляли уведомления о перерыве
             
-            if ( time_stakan::time_to_break() ) {  // Если пришло время разослать уведомления о перерыве
+            if (time_stakan::time_to_break()) {
+                // Если пришло время разослать уведомления о перерыве
+
+                cout << "time_to_break == true" << endl;
 
                 uint current_date = time_stakan::get_current_date().format_mmdd();
+
 
                 data_base::db << "SELECT user.id "
                                  "FROM lesson_user AS les, user "
                                  "WHERE (les.user_id = user.id) AND ((les.time = ? ) AND (les.date = ? )) AND (user.setting_break = 1);"
                 << time_stakan::last_number_lesson << current_date >> [] ( uint   user__id ) {
-                    easy::vkapi::messages_send("Прошла половина занятия. Сейчас перерыв на 10 минут ⏰");
+                    easy::vkapi::messages_send(string("Прошла половина занятия. Сейчас перерыв на 10 минут ⏰"), user__id);
                 };
 
                 need_notiflication_break = false;
-            }           
+            }
 
         }
 
         // Если началось время следующей пары (Рассылка уведомлений о занятий)
         if (time_stakan::last_number_lesson != time_stakan::get_current_number_lesson()) {
 
-            time_stakan::last_number_lesson = time_stakan::get_current_number_lesson();
+                time_stakan::last_number_lesson = time_stakan::get_current_number_lesson();
 
-            // Проверка на то, что это пара, а не конец учебного дня
-            if ((time_stakan::last_number_lesson > 0) and (time_stakan::last_number_lesson < 9)) {
-                // Получаю в Вектор занятия, о которых нужно предупредить
-                auto vector__lesson_user = data_base::get_lesson(
-                    time_stakan::get_current_date().format_mmdd(),
-                    time_stakan::last_number_lesson
-                );
+                // Проверка на то, что это пара, а не конец учебного дня
+                if ((time_stakan::last_number_lesson > 0) and (time_stakan::last_number_lesson < 9)) {
+                    // Получаю в Вектор занятия, о которых нужно предупредить
+                    auto vector__lesson_user = data_base::get_lesson(
+                        time_stakan::get_current_date().format_mmdd(),
+                        time_stakan::last_number_lesson
+                    );
 
-                // Установка флага, означающий что нужно будет
-                // разослать уведомления об перерыве
-                need_notiflication_break = true;
+                    // Установка флага, означающий что нужно будет
+                    // разослать уведомления об перерыве
+                    need_notiflication_break = true;
 
-                // Рассылка сообщений об предстоящем занятии    
-                for (auto i: vector__lesson_user) {
-                    string text = "Следующее занятие 👩‍🏫\n\n";
-                    text = text + string(i["lesson"]["name"]);
-                    
+                    // Рассылка сообщений об предстоящем занятии    
+                    for (auto i: vector__lesson_user) {
+                        string text = "Следующее занятие 👩‍🏫\n\n";
+                        text = text + string(i["lesson"]["name"]);
+                        
 
-                    if (int(i["lesson"]["type"]) == 1) { text = text + " [Лекция]\n"; } else
-                    if (int(i["lesson"]["type"]) == 2) { text = text + " [Семинар]\n"; } else
-                                                       { text = text + " [Лабораторная работа]\n"; }
+                        if (int(i["lesson"]["type"]) == 1) { text = text + " [Лекция]\n"; } else
+                        if (int(i["lesson"]["type"]) == 2) { text = text + " [Семинар]\n"; } else
+                                                        { text = text + " [Лабораторная работа]\n"; }
 
-                    if (i["lesson"]["place"] != "null") {
-                        text = text + "Аудитория: " + string(i["lesson"]["place"]) + "\n";
+                        if (i["lesson"]["place"] != "null") {
+                            text = text + "Аудитория: " + string(i["lesson"]["place"]) + "\n";
+                        }
+
+                        if (i["lesson"]["teacher"] != "null") {
+                            text = text + "Преподаватель: " + string(i["lesson"]["teacher"]) + "\n";
+                        }
+                        
+
+                        easy::vkapi::messages_send(text, uint(i["user"]["id"]));
                     }
 
-                    if (i["lesson"]["teacher"] != "null") {
-                        text = text + "Преподаватель: " + string(i["lesson"]["teacher"]) + "\n";
+
+                    // Удаление/Обновление записей прошлых занятий из lesson_user
+                    if (time_stakan::last_number_lesson != 0) {
+
+                        vector<uint> vec__lesson_id;
+
+                        data_base::db << "SELECT id FROM lesson_user WHERE (time = ? ) AND (date = ? );"
+                        << time_stakan::last_number_lesson - 1 << current_date.format_mmdd()
+                        >> [&vec__lesson_id](unsigned int id) {
+                            vec__lesson_id.push_back(id);
+                        };
+
+                        for (auto id: vec__lesson_id) { data_base::update_lesson(id); }
                     }
-                    
-
-                    easy::vkapi::messages_send(text, uint(i["user"]["id"]));
                 }
 
-
-                // Удаление/Обновление записей прошлых занятий из lesson_user
-                if (time_stakan::last_number_lesson != 0) {
-
-                    vector<uint> vec__lesson_id;
-
-                    data_base::db << "SELECT id FROM lesson_user WHERE (time = ? ) AND (date = ? );"
-                    << current_date.format_mmdd() << time_stakan::last_number_lesson
-                    >> [&vec__lesson_id](unsigned int id) {
-                        vec__lesson_id.push_back(id);
-                    };
-
-                    for (auto id: vec__lesson_id) { data_base::update_lesson(id); }
-                }
             }
-
-
-        }
 
         // Если случился переход на другой день
         if (current_date != time_stakan::get_current_date()) {

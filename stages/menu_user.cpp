@@ -110,18 +110,20 @@ void stage :: menu_user (const json& message) {
 
         // Если была нажата кнопка
         if (message.count("payload")) {
-            if (message["payload"] == "1") { next_stage = "print_current_lesson__menu_user"; } else
-            if (message["payload"] == "2") { next_stage = "print_today_lesson__menu_user"; } else
-            if (message["payload"] == "3") { next_stage = "print_tomorrow_lesson__menu_user"; } else
+            if (message["payload"] == "1")     { next_stage = "print_current_lesson__menu_user"; }  else
+            if (message["payload"] == "2")     { next_stage = "print_today_lesson__menu_user"; }    else
+            if (message["payload"] == "3")     { next_stage = "print_tomorrow_lesson__menu_user"; } else
+            if (message["payload"] == "4")     { next_stage = "search_teacher_input"; }             else
             if (message["payload"] == "20545") { next_stage = "menu_guest"; }
         }
         
 
         // Если был введен текст
         else {
-            if (message["text"] == "1") { next_stage = "print_current_lesson__menu_user"; } else
-            if (message["text"] == "2") { next_stage = "print_today_lesson__menu_user"; }   else
+            if (message["text"] == "1") { next_stage = "print_current_lesson__menu_user"; }  else
+            if (message["text"] == "2") { next_stage = "print_today_lesson__menu_user"; }    else
             if (message["text"] == "3") { next_stage = "print_tomorrow_lesson__menu_user"; } else
+            if (message["text"] == "4") { next_stage = "search_teacher_input"; }             else
             if (message["text"] == "0") { next_stage = "menu_guest"; }
         }
 
@@ -268,6 +270,9 @@ void stage :: menu_user (const json& message) {
         if (next_stage == "menu_guest") {
             data_base::remove_lesson(peer_id);
             easy::vkapi::messages_send(string("Вы отписались от расписания 😔"), peer_id);
+
+            // Установка значения id_group у пользователя
+            data_base::db << "UPDATE user SET id_group = 0 WHERE id = ? ;" << peer_id;
 
             data_base::set_user_cache(peer_id, user_cache);
             stage::function[next_stage](message);

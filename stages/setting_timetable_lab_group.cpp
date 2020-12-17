@@ -220,6 +220,11 @@ void stage :: setting_timetable_lab_group (const json& message) {
                 data_base::add_lesson(peer_id, uint(user_cache["institute"]) * 10000 + uint(user_cache["year"]) * 100 + uint(user_cache["group"]));
             }
 
+            // Установка значения id_group у пользователя
+            data_base::db << "UPDATE user SET id_group = ? WHERE id = ? ;"
+                << uint(user_cache["institute"]) * 10000 + uint(user_cache["year"]) * 100 + uint(user_cache["group"])
+                << peer_id;
+
             user_cache.erase("institute");
             user_cache.erase("year");
             user_cache.erase("group");

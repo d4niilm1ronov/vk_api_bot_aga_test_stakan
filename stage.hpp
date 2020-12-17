@@ -12,10 +12,11 @@ namespace stage {
     void setting_timetable_group(const json&);
     void setting_timetable_lab_group(const json&);
 
+    void search_teacher_input(const json&);
+
     extern map<string, std::function<void(json)>> function;
     extern map<string, json>                      message;
-
-
+    
 };
 
 
