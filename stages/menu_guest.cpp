@@ -82,13 +82,15 @@ void stage :: menu_guest (const json& message) {
 
         // Обработка нажатия кнопки (через payload)
         if (message.count("payload")) {
-            if (message["payload"] == "1") { user_stage = "setting_timetable_institute"; }
+            if (message["payload"] == "1") { user_stage = "setting_timetable_institute"; } else
+            if (message["payload"] == "2")     { user_stage = "search_teacher_input"; }
         }
         
 
         // Обработка выбора пункта меню (через text сообщения)
         else {
-            if (message["text"] == "1") { user_stage = "setting_timetable_institute"; }
+            if (message["text"] == "1") { user_stage = "setting_timetable_institute"; } else
+            if (message["text"] == "2") { user_stage = "search_teacher_input"; }
         }
 
         // --------------------------------------------------------------------
